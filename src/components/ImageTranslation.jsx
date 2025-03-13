@@ -1,139 +1,130 @@
 import React, { useState, useRef } from "react";
+import Tesseract from "tesseract.js";
+import { translateWithGemini } from "../services/openaiTranslation";
 
 export const ImageTranslation = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [extractedText, setExtractedText] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState("Vietnamese"); // Ngôn ngữ đích mặc định
   const fileInputRef = useRef(null);
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
-    if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+    if (file && file.type.startsWith("image/")) {
       setSelectedImage(file);
-      const imageUrl = URL.createObjectURL(file);
-      setPreviewUrl(imageUrl);
+      setPreviewUrl(URL.createObjectURL(file));
+      processImageText(file);
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-      setSelectedImage(file);
-      const imageUrl = URL.createObjectURL(file);
-      setPreviewUrl(imageUrl);
-    }
-  };
-
-  const handleBrowseClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleClearImage = () => {
-    setSelectedImage(null);
-    setPreviewUrl(null);
-    // Clear the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handlePasteFromClipboard = async () => {
+  const processImageText = async (imageFile) => {
+    setIsProcessing(true);
     try {
-      const clipboardItems = await navigator.clipboard.read();
-      for (const clipboardItem of clipboardItems) {
-        for (const type of clipboardItem.types) {
-          if (type.startsWith("image/")) {
-            const blob = await clipboardItem.getType(type);
-            const file = new File([blob], "pasted-image.png", { type });
-            setSelectedImage(file);
-            const imageUrl = URL.createObjectURL(blob);
-            setPreviewUrl(imageUrl);
-            return;
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Failed to read clipboard:", err);
-      alert("Please use Ctrl+V to paste image from clipboard");
+      const {
+        data: { text },
+      } = await Tesseract.recognize(imageFile, "eng");
+      setExtractedText(text);
+    } catch (error) {
+      console.error("OCR error:", error);
     }
+    setIsProcessing(false);
+  };
+
+  const handleTranslate = async () => {
+    if (!extractedText) return;
+    setIsProcessing(true);
+    try {
+      const translated = await translateWithGemini(
+        extractedText,
+        "English",
+        targetLanguage
+      );
+      setTranslatedText(translated);
+    } catch (error) {
+      console.error("Translation error:", error);
+    }
+    setIsProcessing(false);
   };
 
   return (
-    <>
-      <div className="image-translation-container">
-        {!previewUrl ? (
-          <div
-            className="upload-area"
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">
+        Dịch Văn Bản Từ Hình Ảnh
+      </h2>
+
+      {/* Chọn ảnh */}
+      <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+        Chọn hình ảnh
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleImageSelect}
+        />
+      </label>
+
+      {/* Hiển thị ảnh đã chọn */}
+      {previewUrl && (
+        <img
+          src={previewUrl}
+          alt="Preview"
+          className="mt-4 w-full rounded-lg shadow-md"
+        />
+      )}
+
+      {/* Xử lý OCR */}
+      {isProcessing ? (
+        <p className="text-blue-600 mt-4">Đang xử lý...</p>
+      ) : (
+        <>
+          <textarea
+            value={extractedText}
+            onChange={(e) => setExtractedText(e.target.value)}
+            placeholder="Văn bản trích xuất..."
+            className="mt-4 w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="4"
+          />
+
+          {/* Chọn ngôn ngữ đích */}
+          <label className="block mt-4 font-semibold">
+            Chọn ngôn ngữ dịch:
+          </label>
+          <select
+            value={targetLanguage}
+            onChange={(e) => setTargetLanguage(e.target.value)}
+            className="mt-2 w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <div className="upload-cloud-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
-              </svg>
-            </div>
-            <div className="upload-text">Drag and Drop</div>
-            <div className="upload-options">
-              <div className="upload-title">Or select a file</div>
-              <button className="upload-btn" onClick={handleBrowseClick}>
-                Browse files
-              </button>
-              <button
-                className="clipboard-btn"
-                onClick={handlePasteFromClipboard}
-              >
-                <span className="clipboard-icon">📋</span>
-                Paste file from clipboard
-              </button>
-              <div className="supported-formats">
-                  Supported file types: .jpg, .jpeg, .png
-                <a href="#" className="learn-more-link">
-                  Learn more
-                </a>
-              </div>
-            </div>
-            <input
-              type="file"
-              accept="image/jpeg, image/png"
-              className="hidden-file-input"
-              ref={fileInputRef}
-              onChange={handleImageSelect}
-            />
-          </div>
-        ) : (
-          <div className="preview-container">
-            <div className="preview-toolbar">
-              <button className="preview-action-btn" onClick={handleClearImage}>
-                <span className="preview-action-icon">🗑️</span>
-                Delete
-              </button>
-            </div>
-            <img src={previewUrl} alt="Preview" className="image-preview" />
-          </div>
-        )}
-      </div>
+            <option value="Vietnamese">Tiếng Việt</option>
+            <option value="French">Tiếng Pháp</option>
+            <option value="Spanish">Tiếng Tây Ban Nha</option>
+            <option value="Japanese">Tiếng Nhật</option>
+            <option value="Chinese">Tiếng Trung</option>
+            <option value="Korean">Tiếng Hàn</option>
+            <option value="English">Tiếng Anh</option>
+            <option value="German">Tiếng Đức</option>
+          </select>
 
-      {/* Thêm phần lịch sử và đã lưu */}
-      <div className="translation-history">
-        <div className="history-item">
-          <div className="history-icon">
-            <span>🕒</span>
-          </div>
-          <div className="history-text">Translations done</div>
-        </div>
-        <div className="history-item">
-          <div className="history-icon">
-            <span>⭐</span>
-          </div>
-          <div className="history-text">Saved</div>
-        </div>
-      </div>
+          {/* Nút dịch */}
+          <button
+            onClick={handleTranslate}
+            className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+          >
+            Dịch
+          </button>
+        </>
+      )}
 
-      <div className="feedback-text">Send feedback</div>
-    </>
+      {/* Kết quả dịch */}
+      {translatedText && (
+        <div className="mt-4 p-4 bg-gray-100 border rounded-md">
+          <h3 className="text-lg font-semibold text-gray-700">Bản dịch:</h3>
+          <p className="text-gray-800 mt-2">{translatedText}</p>
+        </div>
+      )}
+    </div>
   );
 };

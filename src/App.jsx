@@ -6,6 +6,8 @@ import { TranslationTabs } from "./components/TranslationTabs";
 import { LanguageControls } from "./components/LanguageControls";
 import { TranslationPanel } from "./components/TranslationPanel";
 import { translateWithGemini } from "./services/openaiTranslation";
+import { ImageTranslation } from "./components/ImageTranslation";
+import { DocumentTranslation } from "./components/DocumentTranslation";
 import { AuthForm } from "./components/AuthForm";
 import "boxicons/css/boxicons.min.css";
 
@@ -163,12 +165,8 @@ function App() {
               />
             </>
           )}
-          {activeTab === "image" && (
-            <div className="coming-soon">Image translation coming soon</div>
-          )}
-          {activeTab === "document" && (
-            <div className="coming-soon">Document translation coming soon</div>
-          )}
+          {activeTab === "image" && <ImageTranslation />}
+          {activeTab === "document" && <DocumentTranslation />}
         </div>
       </div>
 
