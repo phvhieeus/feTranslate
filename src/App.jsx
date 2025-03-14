@@ -1,182 +1,131 @@
-import { useState, useEffect, useCallback } from "react";
-import debounce from "lodash.debounce";
-import "./App.css";
-import { Header } from "./components/Header";
+import React, { useState, useEffect } from "react";
 import { TranslationTabs } from "./components/TranslationTabs";
 import { LanguageControls } from "./components/LanguageControls";
 import { TranslationPanel } from "./components/TranslationPanel";
-import { translateWithGemini } from "./services/openaiTranslation";
-import { ImageTranslation } from "./components/ImageTranslation";
+// Thay đổi đường dẫn import để phù hợp với tên file thực tế
+import { ImageTranslation } from "./components/ImageTranslate"; // Thay vì ImageTranslation
 import { DocumentTranslation } from "./components/DocumentTranslation";
-import { AuthForm } from "./components/AuthForm";
-import "boxicons/css/boxicons.min.css";
+import { translateWithGemini } from "./services/openaiTranslation";
+import debounce from "lodash.debounce";
 
 function App() {
-  // State quản lý đăng nhập - Mặc định là đã đăng nhập để hiển thị giao diện dịch ngay
-  const [user, setUser] = useState({ username: "Guest" });
-
-  // State hiển thị/ẩn form đăng nhập - Mặc định ẩn
-  const [showAuth, setShowAuth] = useState(false);
-
-  // Các state hiện có của bạn
+  const [activeTab, setActiveTab] = useState("text");
   const [text, setText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [selectedSourceLang, setSelectedSourceLang] = useState("English");
   const [selectedTargetLang, setSelectedTargetLang] = useState("Vietnamese");
-  const [activeTab, setActiveTab] = useState("text");
-  const [charCount, setCharCount] = useState(0);
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [autoTranslate, setAutoTranslate] = useState(true);
 
-  const debouncedTranslate = useCallback(
-    debounce(async (currentText, sourceLang, targetLang) => {
-      if (!currentText.trim()) {
-        setTranslatedText("");
-        return;
-      }
-
-      try {
-        setIsTranslating(true);
-        setError(null);
-        const result = await translateWithGemini(
-          currentText,
-          sourceLang,
-          targetLang
-        );
-        setTranslatedText(result.startsWith("Error:") ? "" : result);
-      } catch (error) {
-        setError(`Lỗi dịch: ${error.message || "Lỗi không xác định"}`);
-      } finally {
-        setIsTranslating(false);
-      }
-    }, 1000),
-    []
-  );
-
-  useEffect(() => {
-    if (autoTranslate && text.trim()) {
-      debouncedTranslate(text, selectedSourceLang, selectedTargetLang);
+  // Debounce the translation function
+  const debouncedTranslate = debounce(async (text) => {
+    if (!text.trim()) {
+      setTranslatedText("");
+      return;
     }
-    return () => debouncedTranslate.cancel();
-  }, [
-    text,
-    selectedSourceLang,
-    selectedTargetLang,
-    autoTranslate,
-    debouncedTranslate,
-  ]);
 
-  const handleTextChange = (e) => {
-    const newText = e.target.value;
-    setText(newText);
-    setCharCount(newText.length);
-    if (!newText.trim()) setTranslatedText("");
-  };
-
-  const handleTranslate = async () => {
+    setIsTranslating(true);
     try {
-      setIsTranslating(true);
-      setTranslatedText("Đang dịch...");
       const result = await translateWithGemini(
         text,
         selectedSourceLang,
         selectedTargetLang
       );
-      setTranslatedText(result.startsWith("Error:") ? "" : result);
-    } catch (error) {
-      setError(`Lỗi dịch: ${error.message || "Lỗi không xác định"}`);
+      setTranslatedText(result);
+      setError(null);
+    } catch (err) {
+      setError("Translation failed: " + err.message);
+      console.error("Translation error:", err);
     } finally {
       setIsTranslating(false);
     }
-  };
+  }, 1000);
 
-  const swapLanguages = async () => {
-    if (selectedSourceLang === "Language detection") return;
-    const newSourceLang = selectedTargetLang;
-    const newTargetLang = selectedSourceLang;
-    setSelectedSourceLang(newSourceLang);
-    setSelectedTargetLang(newTargetLang);
-    if (text && translatedText) {
-      setText(translatedText);
-      setCharCount(translatedText.length);
-      await handleTranslate();
+  // Effect to trigger translation when text or languages change
+  useEffect(() => {
+    if (autoTranslate && text.trim()) {
+      debouncedTranslate(text);
     }
+    return () => {
+      debouncedTranslate.cancel();
+    };
+  }, [text, selectedSourceLang, selectedTargetLang, autoTranslate]);
+
+  const handleTextChange = (e) => {
+    setText(e.target.value);
   };
 
-  // Xử lý đăng nhập/đăng ký
-  const handleLogin = (userData) => {
-    console.log("Đăng nhập với:", userData);
-    // Trong ứng dụng thực tế, bạn sẽ gọi API để xác thực
-    setUser({
-      username: userData.username,
-    });
-    setShowAuth(false);
+  const handleTranslate = () => {
+    debouncedTranslate.cancel();
+    debouncedTranslate(text);
   };
 
-  const handleRegister = (userData) => {
-    console.log("Đăng ký với:", userData);
-    // Trong ứng dụng thực tế, bạn sẽ gọi API để đăng ký
-    setUser({
-      username: userData.username,
-      email: userData.email,
-    });
-    setShowAuth(false);
+  const clearText = () => {
+    setText("");
+    setTranslatedText("");
   };
 
-  const handleAuthToggle = () => {
-    setShowAuth(!showAuth);
+  const swapLanguages = () => {
+    // Don't swap if source is auto-detect
+    if (selectedSourceLang === "Language detection") return;
+    
+    setSelectedSourceLang(selectedTargetLang);
+    setSelectedTargetLang(selectedSourceLang);
+    
+    // Also swap the text if there's translated content
+    if (translatedText) {
+      setText(translatedText);
+      setTranslatedText(text);
+    }
   };
 
   return (
     <div className="App">
-      <Header onAuthToggle={handleAuthToggle} />
-
-      <div className="translation-section">
-        <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="translate-container">
-          <LanguageControls
-            selectedSourceLang={selectedSourceLang}
-            selectedTargetLang={selectedTargetLang}
-            setSelectedSourceLang={setSelectedSourceLang}
-            setSelectedTargetLang={setSelectedTargetLang}
-            swapLanguages={swapLanguages}
-          />
-          {activeTab === "text" && (
-            <>
-              <div className="auto-translate-toggle">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={autoTranslate}
-                    onChange={() => setAutoTranslate(!autoTranslate)}
-                  />
-                  Tự động dịch khi gõ
-                </label>
-              </div>
-              <TranslationPanel
-                text={text}
-                translatedText={translatedText}
-                handleTextChange={handleTextChange}
-                charCount={charCount}
-                handleTranslate={handleTranslate}
-                isTranslating={isTranslating}
-                error={error}
-              />
-            </>
-          )}
-          {activeTab === "image" && <ImageTranslation />}
-          {activeTab === "document" && <DocumentTranslation />}
+      <header className="App-header">
+        <div className="header-left">
+          <button className="menu-button">☰</button>
+          <div className="logo">
+            <span className="google-logo">Google</span>
+            <span className="translate-text">Translate</span>
+          </div>
         </div>
-      </div>
+        <div className="header-right">
+<button className="settings-button">⚙️</button>
+          <div className="profile-circle"></div>
+        </div>
+      </header>
 
-      {showAuth && (
-        <AuthForm
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-          onClose={() => setShowAuth(false)}
-        />
-      )}
+      <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      <main className="translation-section">
+        {activeTab === "text" && (
+          <>
+            <LanguageControls
+              selectedSourceLang={selectedSourceLang}
+              selectedTargetLang={selectedTargetLang}
+              setSelectedSourceLang={setSelectedSourceLang}
+              setSelectedTargetLang={setSelectedTargetLang}
+              swapLanguages={swapLanguages}
+            />
+            <TranslationPanel
+              text={text}
+              translatedText={translatedText}
+              handleTextChange={handleTextChange}
+              charCount={text.length}
+              clearText={clearText}
+              handleTranslate={handleTranslate}
+              isTranslating={isTranslating}
+              error={error}
+              autoTranslate={autoTranslate}
+              selectedSourceLang={selectedSourceLang}
+              selectedTargetLang={selectedTargetLang} 
+            />
+          </>
+        )}
+        {activeTab === "document" && <DocumentTranslation />}
+        {activeTab === "image" && <ImageTranslation />}
+      </main>
     </div>
   );
 }
