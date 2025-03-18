@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { TranslationTabs } from "./components/TranslationTabs";
 import { LanguageControls } from "./components/LanguageControls";
 import { TranslationPanel } from "./components/TranslationPanel";
-// Thay đổi đường dẫn import để phù hợp với tên file thực tế
-import { ImageTranslation } from "./components/ImageTranslate"; // Thay vì ImageTranslation
+import { ImageTranslation } from "./components/ImageTranslate";
+import AuthForm from "./components/AuthForm"; // Giữ nguyên import
 import { DocumentTranslation } from "./components/DocumentTranslation";
-import AuthForm from "./components/AuthForm";
 import { translateWithGemini } from "./services/openaiTranslation";
 import debounce from "lodash.debounce";
 import "./App.css";
@@ -50,24 +49,14 @@ function App() {
   useEffect(() => {
     if (autoTranslate && text.trim()) {
       debouncedTranslate(text);
-    } else if (!text.trim()) {
-      // Nếu văn bản trống, xóa luôn bản dịch
-      setTranslatedText("");
     }
-    
     return () => {
       debouncedTranslate.cancel();
     };
   }, [text, selectedSourceLang, selectedTargetLang, autoTranslate]);
 
   const handleTextChange = (e) => {
-    const newText = e.target.value;
-    setText(newText);
-    
-    // Nếu người dùng xóa hết văn bản, xóa luôn bản dịch
-    if (!newText.trim()) {
-      setTranslatedText("");
-    }
+    setText(e.target.value);
   };
 
   const handleTranslate = () => {
@@ -117,8 +106,21 @@ function App() {
           </div>
         </div>
         <div className="header-right">
-<button className="settings-button">⚙️</button>
-          <div className="profile-circle"></div>
+          <button className="settings-button">⚙️</button>
+          {isLoggedIn ? (
+            <div className="profile-circle">
+              <img
+                src="https://i.pravatar.cc/100"
+                alt="User"
+                className="avatar-img"
+              />
+            </div>
+          ) : (
+            <button className="login-button" onClick={handleOpenAuth}>
+              <i className="bx bxs-user-circle"></i>
+              <span>Login</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -126,34 +128,40 @@ function App() {
         <>
           <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="translation-section">
-        {activeTab === "text" && (
-          <>
-            <LanguageControls
-              selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang}
-              setSelectedSourceLang={setSelectedSourceLang}
-              setSelectedTargetLang={setSelectedTargetLang}
-              swapLanguages={swapLanguages}
-            />
-            <TranslationPanel
-              text={text}
-              translatedText={translatedText}
-              handleTextChange={handleTextChange}
-              charCount={text.length}
-              clearText={clearText}
-              handleTranslate={handleTranslate}
-              isTranslating={isTranslating}
-              error={error}
-              autoTranslate={autoTranslate}
-              selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang} 
-            />
-          </>
-        )}
-        {activeTab === "document" && <DocumentTranslation />}
-        {activeTab === "image" && <ImageTranslation />}
-      </main>
+          <main className="translation-section">
+            {activeTab === "text" && (
+              <>
+                <LanguageControls
+                  selectedSourceLang={selectedSourceLang}
+                  selectedTargetLang={selectedTargetLang}
+                  setSelectedSourceLang={setSelectedSourceLang}
+                  setSelectedTargetLang={setSelectedTargetLang}
+                  swapLanguages={swapLanguages}
+                />
+                <TranslationPanel
+                  text={text}
+                  translatedText={translatedText}
+                  handleTextChange={handleTextChange}
+                  charCount={text.length}
+                  clearText={clearText}
+                  handleTranslate={handleTranslate}
+                  isTranslating={isTranslating}
+                  error={error}
+                  autoTranslate={autoTranslate}
+                  selectedSourceLang={selectedSourceLang}
+                  selectedTargetLang={selectedTargetLang}
+                />
+              </>
+            )}
+            {activeTab === "document" && <DocumentTranslation />}
+            {activeTab === "image" && <ImageTranslation />}
+          </main>
+        </>
+      )}
+
+      {showAuthForm && (
+        <AuthForm onLoginSuccess={handleLogin} onClose={handleCloseAuth} />
+      )}
     </div>
   );
 }
