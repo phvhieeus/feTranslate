@@ -1,70 +1,44 @@
 import React, { useState } from "react";
 import "boxicons/css/boxicons.min.css";
 
-export const AuthForm = ({ onLogin, onRegister, onClose }) => {
+const AuthForm = ({ onLoginSuccess, onClose }) => {
   const [isActive, setIsActive] = useState(false);
-  const [loginData, setLoginData] = useState({
-    username: "",
-    password: "",
-  });
-  const [registerData, setRegisterData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
 
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    setLoginData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleRegisterClick = () => {
+    setIsActive(true);
   };
 
-  const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleLoginClick = () => {
+    setIsActive(false);
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleSubmitLogin = (e) => {
     e.preventDefault();
-    onLogin(loginData);
+    // Xử lý đăng nhập ở đây
+    if (onLoginSuccess) onLoginSuccess();
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleSubmitRegister = (e) => {
     e.preventDefault();
-    onRegister(registerData);
+    // Xử lý đăng ký ở đây
   };
 
   return (
-    <div className="auth-container">
-      <div className={`container ${isActive ? "active" : ""}`}>
+    <div className="auth-page">
+      <div className={`auth-container ${isActive ? "active" : ""}`}>
+        <button className="close-btn" onClick={onClose}>
+          <i className="bx bx-x"></i>
+        </button>
+
         <div className="form-box login">
-          <form onSubmit={handleLoginSubmit}>
+          <form onSubmit={handleSubmitLogin}>
             <h1>Login</h1>
             <div className="input-box">
-              <input
-                type="text"
-                placeholder="Username"
-                name="username"
-                value={loginData.username}
-                onChange={handleLoginChange}
-                required
-              />
+              <input type="text" placeholder="Username" required />
               <i className="bx bxs-user"></i>
             </div>
             <div className="input-box">
-              <input
-                type="password"
-                placeholder="Password"
-                name="password"
-                value={loginData.password}
-                onChange={handleLoginChange}
-                required
-              />
+              <input type="password" placeholder="Password" required />
               <i className="bx bxs-lock-alt"></i>
             </div>
             <div className="forgot-link">
@@ -92,39 +66,18 @@ export const AuthForm = ({ onLogin, onRegister, onClose }) => {
         </div>
 
         <div className="form-box register">
-          <form onSubmit={handleRegisterSubmit}>
+          <form onSubmit={handleSubmitRegister}>
             <h1>Registration</h1>
             <div className="input-box">
-              <input
-                type="text"
-                placeholder="Username"
-                name="username"
-                value={registerData.username}
-                onChange={handleRegisterChange}
-                required
-              />
+              <input type="text" placeholder="Username" required />
               <i className="bx bxs-user"></i>
             </div>
             <div className="input-box">
-              <input
-                type="email"
-                placeholder="Email"
-                name="email"
-                value={registerData.email}
-                onChange={handleRegisterChange}
-                required
-              />
+              <input type="email" placeholder="Email" required />
               <i className="bx bxs-envelope"></i>
             </div>
             <div className="input-box">
-              <input
-                type="password"
-                placeholder="Password"
-                name="password"
-                value={registerData.password}
-                onChange={handleRegisterChange}
-                required
-              />
+              <input type="password" placeholder="Password" required />
               <i className="bx bxs-lock-alt"></i>
             </div>
             <button type="submit" className="btn">
@@ -152,11 +105,7 @@ export const AuthForm = ({ onLogin, onRegister, onClose }) => {
           <div className="toggle-panel toggle-left">
             <h1>Hello, Welcome!</h1>
             <p>Don't have an account?</p>
-            <button
-              type="button"
-              className="btn register-btn"
-              onClick={() => setIsActive(true)}
-            >
+            <button className="btn register-btn" onClick={handleRegisterClick}>
               Register
             </button>
           </div>
@@ -164,22 +113,14 @@ export const AuthForm = ({ onLogin, onRegister, onClose }) => {
           <div className="toggle-panel toggle-right">
             <h1>Welcome Back!</h1>
             <p>Already have an account?</p>
-            <button
-              type="button"
-              className="btn login-btn"
-              onClick={() => setIsActive(false)}
-            >
+            <button className="btn login-btn" onClick={handleLoginClick}>
               Login
             </button>
           </div>
         </div>
-
-        {onClose && (
-          <button className="close-btn" onClick={onClose}>
-            <i className="bx bx-x"></i>
-          </button>
-        )}
       </div>
     </div>
   );
 };
+
+export default AuthForm;

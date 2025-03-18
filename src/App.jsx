@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { TranslationTabs } from "./components/TranslationTabs";
 import { LanguageControls } from "./components/LanguageControls";
 import { TranslationPanel } from "./components/TranslationPanel";
-// Thay đổi đường dẫn import để phù hợp với tên file thực tế
-import { ImageTranslation } from "./components/ImageTranslate"; // Thay vì ImageTranslation
+import { ImageTranslation } from "./components/ImageTranslate";
+import AuthForm from "./components/AuthForm"; // Giữ nguyên import
 import { DocumentTranslation } from "./components/DocumentTranslation";
 import { translateWithGemini } from "./services/openaiTranslation";
 import debounce from "lodash.debounce";
+import "./App.css";
 
 function App() {
   const [activeTab, setActiveTab] = useState("text");
@@ -17,6 +18,8 @@ function App() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [autoTranslate, setAutoTranslate] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showAuthForm, setShowAuthForm] = useState(false);
 
   // Debounce the translation function
   const debouncedTranslate = debounce(async (text) => {
@@ -67,17 +70,29 @@ function App() {
   };
 
   const swapLanguages = () => {
-    // Don't swap if source is auto-detect
     if (selectedSourceLang === "Language detection") return;
-    
+
     setSelectedSourceLang(selectedTargetLang);
     setSelectedTargetLang(selectedSourceLang);
-    
-    // Also swap the text if there's translated content
+
     if (translatedText) {
       setText(translatedText);
       setTranslatedText(text);
     }
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setShowAuthForm(false);
+    setActiveTab("text"); // Quay lại tab text sau khi đăng nhập
+  };
+
+  const handleOpenAuth = () => {
+    setShowAuthForm(true);
+  };
+
+  const handleCloseAuth = () => {
+    setShowAuthForm(false);
   };
 
   return (
@@ -91,41 +106,62 @@ function App() {
           </div>
         </div>
         <div className="header-right">
-<button className="settings-button">⚙️</button>
-          <div className="profile-circle"></div>
+          <button className="settings-button">⚙️</button>
+          {isLoggedIn ? (
+            <div className="profile-circle">
+              <img
+                src="https://i.pravatar.cc/100"
+                alt="User"
+                className="avatar-img"
+              />
+            </div>
+          ) : (
+            <button className="login-button" onClick={handleOpenAuth}>
+              <i className="bx bxs-user-circle"></i>
+              <span>Login</span>
+            </button>
+          )}
         </div>
       </header>
 
-      <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      {!showAuthForm && (
+        <>
+          <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="translation-section">
-        {activeTab === "text" && (
-          <>
-            <LanguageControls
-              selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang}
-              setSelectedSourceLang={setSelectedSourceLang}
-              setSelectedTargetLang={setSelectedTargetLang}
-              swapLanguages={swapLanguages}
-            />
-            <TranslationPanel
-              text={text}
-              translatedText={translatedText}
-              handleTextChange={handleTextChange}
-              charCount={text.length}
-              clearText={clearText}
-              handleTranslate={handleTranslate}
-              isTranslating={isTranslating}
-              error={error}
-              autoTranslate={autoTranslate}
-              selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang} 
-            />
-          </>
-        )}
-        {activeTab === "document" && <DocumentTranslation />}
-        {activeTab === "image" && <ImageTranslation />}
-      </main>
+          <main className="translation-section">
+            {activeTab === "text" && (
+              <>
+                <LanguageControls
+                  selectedSourceLang={selectedSourceLang}
+                  selectedTargetLang={selectedTargetLang}
+                  setSelectedSourceLang={setSelectedSourceLang}
+                  setSelectedTargetLang={setSelectedTargetLang}
+                  swapLanguages={swapLanguages}
+                />
+                <TranslationPanel
+                  text={text}
+                  translatedText={translatedText}
+                  handleTextChange={handleTextChange}
+                  charCount={text.length}
+                  clearText={clearText}
+                  handleTranslate={handleTranslate}
+                  isTranslating={isTranslating}
+                  error={error}
+                  autoTranslate={autoTranslate}
+                  selectedSourceLang={selectedSourceLang}
+                  selectedTargetLang={selectedTargetLang}
+                />
+              </>
+            )}
+            {activeTab === "document" && <DocumentTranslation />}
+            {activeTab === "image" && <ImageTranslation />}
+          </main>
+        </>
+      )}
+
+      {showAuthForm && (
+        <AuthForm onLoginSuccess={handleLogin} onClose={handleCloseAuth} />
+      )}
     </div>
   );
 }
