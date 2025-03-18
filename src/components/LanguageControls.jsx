@@ -5,12 +5,24 @@ export function LanguageControls({
   selectedTargetLang,
   setSelectedSourceLang,
   setSelectedTargetLang,
-  swapLanguages,
-  supportedLanguages,
-  getTargetLanguages
+  swapLanguages
 }) {
   const [showSourceOptions, setShowSourceOptions] = useState(false);
   const [showTargetOptions, setShowTargetOptions] = useState(false);
+
+  // Danh sách ngôn ngữ hỗ trợ mặc định
+  const defaultSupportedLanguages = [
+    { value: "English", label: "Tiếng Anh" },
+    { value: "Vietnamese", label: "Tiếng Việt" },
+    { value: "Chinese", label: "Tiếng Trung" },
+    { value: "French", label: "Tiếng Pháp" },
+    { value: "German", label: "Tiếng Đức" },
+    { value: "Japanese", label: "Tiếng Nhật" },
+    { value: "Korean", label: "Tiếng Hàn" },
+    { value: "Spanish", label: "Tiếng Tây Ban Nha" }
+  ];
+
+  const supportedLanguages = defaultSupportedLanguages;
 
   const handleSourceLanguageSelect = (lang) => {
     setSelectedSourceLang(lang);
@@ -22,9 +34,9 @@ export function LanguageControls({
     setShowTargetOptions(false);
   };
 
-  const getLanguageLabel = (value) => {
-    const language = supportedLanguages.find(lang => lang.value === value);
-    return language ? language.label : value;
+  // Hàm lấy danh sách ngôn ngữ đích (loại bỏ ngôn ngữ nguồn)
+  const getTargetLanguages = () => {
+    return supportedLanguages.filter(lang => lang.value !== selectedSourceLang);
   };
 
   return (
@@ -35,7 +47,7 @@ export function LanguageControls({
             className="selected-language"
             onClick={() => setShowSourceOptions(!showSourceOptions)}
           >
-            {getLanguageLabel(selectedSourceLang)}
+            {selectedSourceLang}
             <span className="dropdown-arrow">▼</span>
           </div>
           {showSourceOptions && (
@@ -66,7 +78,7 @@ export function LanguageControls({
             className="selected-language"
             onClick={() => setShowTargetOptions(!showTargetOptions)}
           >
-            {getLanguageLabel(selectedTargetLang)}
+            {selectedTargetLang}
             <span className="dropdown-arrow">▼</span>
           </div>
           {showTargetOptions && (
