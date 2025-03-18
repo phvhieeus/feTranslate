@@ -5,6 +5,8 @@ import { TranslationPanel } from "./components/TranslationPanel";
 import { ImageTranslation } from "./components/ImageTranslate";
 import { DocumentTranslation } from "./components/DocumentTranslation";
 import { translateWithGemini } from "./services/openaiTranslation";
+import { checkGrammarWithGemini } from "./services/grammarChecker";
+import { ErrorDetails } from "./components/ErrorDetails";
 import debounce from "lodash.debounce";
 
 function App() {
@@ -16,6 +18,10 @@ function App() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [autoTranslate, setAutoTranslate] = useState(true);
+  
+  // Thêm state cho kiểm tra lỗi
+  const [grammarErrors, setGrammarErrors] = useState({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+  const [showErrorDetails, setShowErrorDetails] = useState(false);
 
   // Supported languages
   const supportedLanguages = [
@@ -41,6 +47,121 @@ function App() {
   }, [selectedSourceLang]);
 
   // Debounce the translation function
+  // Cải tiến các hàm sửa lỗi để xử lý dấu câu tốt hơn
+  const fixAllErrors = () => {
+    if (!grammarErrors.errors || grammarErrors.errors.length === 0) return;
+    
+    let newText = text;
+    
+    // Sắp xếp lỗi theo vị trí bắt đầu giảm dần để tránh vấn đề khi thay thế text
+    const sortedErrors = [...grammarErrors.errors].sort((a, b) => {
+      const posA = newText.indexOf(a.word);
+      const posB = newText.indexOf(b.word);
+      return posB - posA;
+    });
+    
+    // Sửa từng lỗi một, từ phải sang trái trong văn bản
+    sortedErrors.forEach(error => {
+      if (error.word === "[PUNCT]") {
+        // Xử lý đặc biệt cho lỗi dấu câu
+        if (error.position === "end") {
+          // Nếu thiếu dấu câu ở cuối câu
+          newText = newText.trimEnd() + error.suggestion;
+        } else if (error.context) {
+          // Xử lý thiếu dấu câu ở các vị trí khác dựa vào context
+          const contextWithoutPunct = error.context.replace(/\[PUNCT\]/g, '').trim();
+          if (contextWithoutPunct && newText.includes(contextWithoutPunct)) {
+            const punctPos = newText.indexOf(contextWithoutPunct) + contextWithoutPunct.length;
+            // Kiểm tra xem đã có dấu câu ở vị trí này chưa
+            if (punctPos <= newText.length && newText[punctPos] !== error.suggestion) {
+              newText = newText.substring(0, punctPos) + 
+                      error.suggestion + 
+                      newText.substring(punctPos);
+            }
+          }
+        }
+      } else {
+        // Xử lý lỗi từ thông thường
+        const escapedWord = error.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Sử dụng regex chính xác hơn cho từ
+        const regex = new RegExp(escapedWord, 'g');
+        newText = newText.replace(regex, error.suggestion);
+      }
+    });
+    
+    setText(newText);
+    
+    // Reset trạng thái lỗi và kích hoạt kiểm tra lại sau khi sửa
+    setGrammarErrors({
+      errorCount: 0,
+      errors: [],
+      checked: true,
+      timestamp: Date.now() // Thêm timestamp giúp React nhận biết thay đổi
+    });
+    
+    setShowErrorDetails(false);
+    
+    // Kích hoạt kiểm tra lỗi sau khi sửa với một chút delay
+    setTimeout(() => {
+      debouncedGrammarCheck.cancel();
+      debouncedGrammarCheck(newText);
+    }, 500);
+  };
+
+  const fixSingleError = (error) => {
+    if (!error || !error.id) return;
+    
+    let newText = text;
+    
+    if (error.word === "[PUNCT]") {
+      // Xử lý đặc biệt cho lỗi dấu câu
+      if (error.position === "end") {
+        // Nếu thiếu dấu câu ở cuối câu
+        newText = newText.trimEnd() + error.suggestion;
+      } else if (error.context) {
+        // Xử lý thiếu dấu câu ở các vị trí khác dựa vào context
+        const contextWithoutPunct = error.context.replace(/\[PUNCT\]/g, '').trim();
+        if (contextWithoutPunct && newText.includes(contextWithoutPunct)) {
+          const punctPos = newText.indexOf(contextWithoutPunct) + contextWithoutPunct.length;
+          // Kiểm tra xem đã có dấu câu ở vị trí này chưa
+          if (punctPos <= newText.length && newText[punctPos] !== error.suggestion) {
+            newText = newText.substring(0, punctPos) + 
+                    error.suggestion + 
+                    newText.substring(punctPos);
+          }
+        }
+      }
+    } else {
+      // Xử lý lỗi từ thông thường
+      const escapedWord = error.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedWord, 'g');
+      newText = newText.replace(regex, error.suggestion);
+    }
+    
+    setText(newText);
+    
+    // Lọc lỗi đã sửa ra khỏi danh sách
+    const updatedErrors = grammarErrors.errors.filter(e => e.id !== error.id);
+    setGrammarErrors({
+      errorCount: updatedErrors.length,
+      errors: updatedErrors,
+      checked: true,
+      timestamp: Date.now() // Thêm timestamp
+    });
+    
+    // Đóng modal nếu không còn lỗi nào
+    if (updatedErrors.length === 0) {
+      setShowErrorDetails(false);
+    }
+    
+    // Kích hoạt kiểm tra lỗi sau khi sửa
+    setTimeout(() => {
+      debouncedGrammarCheck.cancel();
+      debouncedGrammarCheck(newText);
+    }, 500);
+  };
+
+  // Debounce cho dịch thuật
   const debouncedTranslate = debounce(async (text) => {
     if (!text.trim()) {
       setTranslatedText("");
@@ -64,17 +185,40 @@ function App() {
     }
   }, 1000);
 
-  // Effect to trigger translation when text or languages change
+  // Debounce cho kiểm tra lỗi - giảm thời gian xuống
+  const debouncedGrammarCheck = debounce(async (text) => {
+    if (!text.trim()) {
+      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+      return;
+    }
+    
+    try {
+      const result = await checkGrammarWithGemini(text, selectedSourceLang);
+      setGrammarErrors(result);
+    } catch (err) {
+      console.error("Grammar check error:", err);
+      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+    }
+  }, 800); // Giảm xuống 800ms thay vì 1500ms
+
+  // Effect cho dịch thuật và kiểm tra lỗi
   useEffect(() => {
     if (autoTranslate && text.trim()) {
       debouncedTranslate(text);
     } else if (!text.trim()) {
-      // Nếu văn bản trống, xóa luôn bản dịch
       setTranslatedText("");
+    }
+    
+    // Thêm kiểm tra lỗi
+    if (text.trim()) {
+      debouncedGrammarCheck(text);
+    } else {
+      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
     }
     
     return () => {
       debouncedTranslate.cancel();
+      debouncedGrammarCheck.cancel();
     };
   }, [text, selectedSourceLang, selectedTargetLang, autoTranslate]);
 
@@ -82,9 +226,9 @@ function App() {
     const newText = e.target.value;
     setText(newText);
     
-    // Nếu người dùng xóa hết văn bản, xóa luôn bản dịch
     if (!newText.trim()) {
       setTranslatedText("");
+      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
     }
   };
 
@@ -96,6 +240,7 @@ function App() {
   const clearText = () => {
     setText("");
     setTranslatedText("");
+    setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
   };
 
   // Get available target languages (exclude the source language)
@@ -105,13 +250,11 @@ function App() {
 
   // Updated swapLanguages function
   const swapLanguages = () => {
-    // Don't swap if source is auto-detect
     if (selectedSourceLang === "Language detection") return;
     
     setSelectedSourceLang(selectedTargetLang);
     setSelectedTargetLang(selectedSourceLang);
     
-    // Also swap the text if there's translated content
     if (translatedText) {
       setText(translatedText);
       setTranslatedText(text);
@@ -180,13 +323,25 @@ function App() {
               error={error}
               autoTranslate={autoTranslate}
               selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang} 
+              selectedTargetLang={selectedTargetLang}
+              grammarErrors={grammarErrors}
+              toggleErrorDetails={() => setShowErrorDetails(!showErrorDetails)}
             />
           </>
         )}
         {activeTab === "document" && <DocumentTranslation />}
         {activeTab === "image" && <ImageTranslation />}
       </main>
+      
+      {/* Modal chi tiết lỗi */}
+      {showErrorDetails && (
+        <ErrorDetails 
+          errors={grammarErrors.errors} 
+          onClose={() => setShowErrorDetails(false)} 
+          onFixAllErrors={fixAllErrors}
+          onFixSingleError={fixSingleError}
+        />
+      )}
     </div>
   );
 }

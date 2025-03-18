@@ -1322,13 +1322,72 @@ body {
   margin-bottom: 10px;
   background-color: white;
 }
+/* Header cho khu vực nhập văn bản */
+.source-text-header {
+  padding: 0;
+  width: 100%;
+}
+
 
 .auth-page {
+
+/* Banner thông báo lỗi cải tiến */
+.grammar-error-banner {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #fffbe6;
+  border-left: 4px solid #faad14; 
+  border-radius: 6px;
+  margin: 5px 15px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Container cho source text đã điều chỉnh */
+.source-text-container {
+  height: calc(100% - 40px);
+  width: 100%;
+}
+
+/* Style cho icon lỗi */
+.error-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* Style cho thông báo số lỗi */
+.error-count {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Style cho nút xem chi tiết */
+.view-errors-button {
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.view-errors-button:hover {
+  background-color: #0d61cb;
+}
+
+/* CSS cho modal hiển thị chi tiết lỗi */
+.error-details-modal {
+
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+
   background-color: white;
   z-index: 1000;
   display: flex;
@@ -1603,4 +1662,187 @@ body {
   .auth-container.active .toggle-panel.toggle-right {
     bottom: 0;
   }
+
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.error-details-content {
+  width: 90%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.error-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.error-details-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.error-details-body {
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.error-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.error-item {
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #faad14;
+}
+
+.error-word {
+  font-weight: bold;
+  color: #d4380d;
+}
+
+.error-suggestion {
+  color: #52c41a;
+  margin-left: 5px;
+}
+/* Thêm vào cuối App.css */
+
+/* Cập nhật CSS cho chi tiết lỗi */
+.error-item {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border-left: 4px solid #faad14;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.error-word {
+  font-weight: bold;
+  color: #d4380d;
+  background-color: #fff1f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.error-arrow {
+  color: #8c8c8c;
+  margin: 0 6px;
+}
+
+.error-suggestion {
+  color: #52c41a;
+  background-color: #f6ffed;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.error-context {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-style: italic;
+  color: #595959;
+}
+
+.error-explanation {
+  line-height: 1.5;
+  color: #262626;
+}
+
+.context-label, .explanation-label {
+  font-weight: 600;
+  margin-right: 6px;
+  color: #8c8c8c;
+}
+
+.explanation-label {
+  color: #096dd9;
+}
+
+/* Highlight lỗi trong văn bản gốc */
+.highlighted-error {
+  background-color: #fff1f0;
+  text-decoration: wavy underline #d4380d;
+  padding: 0 2px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.highlighted-error:hover {
+  background-color: #ffccc7;
+}
+
+/* Buttons cho việc sửa lỗi */
+.error-actions {
+  display: flex;
+  align-items: center;
+}
+
+.fix-all-button {
+  background-color: #52c41a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.fix-all-button:hover {
+  background-color: #389e0d;
+}
+
+.fix-error-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.fix-error-button:hover {
+  background-color: #096dd9;
+
+}
 }

@@ -11,7 +11,9 @@ export function TranslationPanel({
   error,
   autoTranslate,
   selectedSourceLang,
-  selectedTargetLang
+  selectedTargetLang,
+  grammarErrors,
+  toggleErrorDetails
 }) {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
@@ -148,16 +150,39 @@ export function TranslationPanel({
     <div className="text-areas-container">
       {/* Source text area */}
       <div className="text-area-wrapper">
-        <textarea
-          className="source-text"
-          placeholder="Nhập văn bản cần dịch"
-          value={text}
-          onChange={handleTextChange}
-        ></textarea>
+        <div className="source-text-container">
+          {/* Thêm banner cảnh báo lỗi */}
+          {grammarErrors.errorCount > 0 && (
+            <div className="grammar-error-banner">
+              <span className="error-icon">⚠️</span>
+              <span className="error-count">
+                Phát hiện {grammarErrors.errorCount} lỗi trong văn bản của bạn
+              </span>
+              <button 
+                className="view-errors-button" 
+                onClick={toggleErrorDetails}
+              >
+                Xem
+              </button>
+            </div>
+          )}
+          
+          <textarea
+            className="source-text"
+            placeholder="Nhập văn bản cần dịch"
+            value={text}
+            onChange={handleTextChange}
+          ></textarea>
+        </div>
+        
         <div className="text-controls">
           <span className="char-count">{charCount}/5000</span>
           <div className="text-buttons">
+
             {/* Source text speech button */}
+
+            {/* Nút phát âm cho văn bản nguồn */}
+
             {text && (
               <button 
                 className={`speak-button ${isSpeakingSource ? 'speaking' : ''}`} 
