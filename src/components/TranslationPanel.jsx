@@ -11,7 +11,7 @@ export function TranslationPanel({
   error,
   autoTranslate,
   selectedSourceLang,
-  selectedTargetLang,
+  selectedTargetLang
 }) {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
@@ -20,39 +20,38 @@ export function TranslationPanel({
 
   useEffect(() => {
     // Initialize speech recognition
-    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
-      const SpeechRecognition =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognitionInstance = new SpeechRecognition();
-
+      
       recognitionInstance.continuous = true;
       recognitionInstance.interimResults = true;
-      recognitionInstance.lang = "vi-VN"; // Default to Vietnamese - can be made dynamic
-
+      recognitionInstance.lang = 'vi-VN'; // Default to Vietnamese - can be made dynamic
+      
       recognitionInstance.onresult = (event) => {
         const transcript = Array.from(event.results)
-          .map((result) => result[0])
-          .map((result) => result.transcript)
-          .join("");
-
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        
         // Update the text by combining existing text with new transcript
-        const updatedText = text + " " + transcript;
+        const updatedText = text + ' ' + transcript;
         // Call the parent component's text change handler
         handleTextChange({ target: { value: updatedText.trim() } });
       };
-
+      
       recognitionInstance.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
+        console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };
-
+      
       recognitionInstance.onend = () => {
         setIsListening(false);
       };
-
+      
       setRecognition(recognitionInstance);
     }
-
+    
     // Cleanup function
     return () => {
       if (recognition) {
@@ -67,7 +66,7 @@ export function TranslationPanel({
 
   const toggleListening = () => {
     if (!recognition) return;
-
+    
     if (isListening) {
       recognition.stop();
       setIsListening(false);
@@ -80,80 +79,76 @@ export function TranslationPanel({
   // Hàm phát âm cho văn bản nguồn
   const speakSourceText = () => {
     if (!text || isSpeakingSource || isSpeakingTarget) return;
-
-    if ("speechSynthesis" in window) {
+    
+    if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-
+      
       // Đặt ngôn ngữ phát âm dựa trên ngôn ngữ nguồn
       const langMap = {
-        Vietnamese: "vi-VN",
-        English: "en-US",
-        Chinese: "zh-CN",
-        French: "fr-FR",
-        German: "de-DE",
-        Japanese: "ja-JP",
-        Korean: "ko-KR",
-        Spanish: "es-ES",
+        'Vietnamese': 'vi-VN',
+        'English': 'en-US',
+        'Chinese': 'zh-CN',
+        'French': 'fr-FR',
+        'German': 'de-DE',
+        'Japanese': 'ja-JP',
+        'Korean': 'ko-KR',
+        'Spanish': 'es-ES'
       };
-
-      utterance.lang = langMap[selectedSourceLang] || "en-US";
-
+      
+      utterance.lang = langMap[selectedSourceLang] || 'en-US';
+      
       // Tìm giọng phù hợp với ngôn ngữ
       const voices = window.speechSynthesis.getVoices();
-      const voice = voices.find((v) =>
-        v.lang.includes(utterance.lang.split("-")[0])
-      );
+      const voice = voices.find(v => v.lang.includes(utterance.lang.split('-')[0]));
       if (voice) {
         utterance.voice = voice;
       }
-
+      
       utterance.onstart = () => setIsSpeakingSource(true);
       utterance.onend = () => setIsSpeakingSource(false);
       utterance.onerror = () => setIsSpeakingSource(false);
-
+      
       window.speechSynthesis.speak(utterance);
     } else {
-      console.error("Trình duyệt không hỗ trợ phát âm");
+      console.error('Trình duyệt không hỗ trợ phát âm');
     }
   };
 
   // Hàm phát âm cho bản dịch
   const speakTargetText = () => {
     if (!translatedText || isSpeakingSource || isSpeakingTarget) return;
-
-    if ("speechSynthesis" in window) {
+    
+    if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(translatedText);
-
+      
       // Đặt ngôn ngữ phát âm dựa trên ngôn ngữ đích
       const langMap = {
-        Vietnamese: "vi-VN",
-        English: "en-US",
-        Chinese: "zh-CN",
-        French: "fr-FR",
-        German: "de-DE",
-        Japanese: "ja-JP",
-        Korean: "ko-KR",
-        Spanish: "es-ES",
+        'Vietnamese': 'vi-VN',
+        'English': 'en-US',
+        'Chinese': 'zh-CN',
+        'French': 'fr-FR',
+        'German': 'de-DE',
+        'Japanese': 'ja-JP',
+        'Korean': 'ko-KR',
+        'Spanish': 'es-ES'
       };
-
-      utterance.lang = langMap[selectedTargetLang] || "en-US";
-
+      
+      utterance.lang = langMap[selectedTargetLang] || 'en-US';
+      
       // Tìm giọng phù hợp với ngôn ngữ
       const voices = window.speechSynthesis.getVoices();
-      const voice = voices.find((v) =>
-        v.lang.includes(utterance.lang.split("-")[0])
-      );
+      const voice = voices.find(v => v.lang.includes(utterance.lang.split('-')[0]));
       if (voice) {
         utterance.voice = voice;
       }
-
+      
       utterance.onstart = () => setIsSpeakingTarget(true);
       utterance.onend = () => setIsSpeakingTarget(false);
       utterance.onerror = () => setIsSpeakingTarget(false);
-
+      
       window.speechSynthesis.speak(utterance);
     } else {
-      console.error("Trình duyệt không hỗ trợ phát âm");
+      console.error('Trình duyệt không hỗ trợ phát âm');
     }
   };
 
@@ -172,46 +167,48 @@ export function TranslationPanel({
           <div className="text-buttons">
             {/* Thêm nút phát âm cho văn bản nguồn */}
             {text && (
-              <button
-                className={`speak-button ${isSpeakingSource ? "speaking" : ""}`}
+              <button 
+                className={`speak-button ${isSpeakingSource ? 'speaking' : ''}`} 
                 onClick={speakSourceText}
                 title="Phát âm văn bản gốc"
                 disabled={isSpeakingSource || isSpeakingTarget}
               >
-                {isSpeakingSource ? "🔊" : "🔈"}
+                {isSpeakingSource ? '🔊' : '🔈'}
               </button>
             )}
-
+            
             {/* Microphone button */}
             <button
-              className={`mic-button ${isListening ? "mic-active" : ""}`}
+              className={`mic-button ${isListening ? 'mic-active' : ''}`}
               onClick={toggleListening}
               title={isListening ? "Dừng ghi âm" : "Nhập bằng giọng nói"}
             >
-              {isListening ? "🔴 🎤" : "🎤"}
+              {isListening ? '🔴 🎤' : '🎤'}
             </button>
-
+            
             {!autoTranslate && (
-              <button
-                className="translate-button"
-                onClick={handleTranslate}
+              <button 
+                className="translate-button" 
+                onClick={handleTranslate} 
                 disabled={!text.trim() || isTranslating}
               >
                 {isTranslating ? "Đang dịch..." : "Dịch"}
               </button>
             )}
-            <button className="clear-button" onClick={clearText}>
+            <button 
+              className="clear-button" 
+              onClick={clearText}
+            >
               ✕
             </button>
           </div>
         </div>
       </div>
-
+      
       {/* Target text area */}
       <div className="text-area-wrapper">
         <div className="target-header">
-          Bản dịch{" "}
-          {isTranslating && <span className="translating">(đang dịch...)</span>}
+          Bản dịch {isTranslating && <span className="translating">(đang dịch...)</span>}
         </div>
         <textarea
           className="target-text"
@@ -222,18 +219,18 @@ export function TranslationPanel({
           <div className="text-buttons">
             {/* Nút phát âm cho bản dịch */}
             {translatedText && (
-              <button
-                className={`speak-button ${isSpeakingTarget ? "speaking" : ""}`}
+              <button 
+                className={`speak-button ${isSpeakingTarget ? 'speaking' : ''}`} 
                 onClick={speakTargetText}
                 title="Phát âm bản dịch"
                 disabled={isSpeakingSource || isSpeakingTarget}
               >
-                {isSpeakingTarget ? "🔊" : "🔈"}
+                {isSpeakingTarget ? '🔊' : '🔈'}
               </button>
             )}
             {translatedText && (
-              <button
-                className="copy-button"
+              <button 
+                className="copy-button" 
                 onClick={() => navigator.clipboard.writeText(translatedText)}
                 title="Sao chép bản dịch"
               >
@@ -243,7 +240,7 @@ export function TranslationPanel({
           </div>
         </div>
       </div>
-
+      
       {error && <div className="error-message">{error}</div>}
     </div>
   );
