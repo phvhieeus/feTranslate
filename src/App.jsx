@@ -7,6 +7,7 @@ import { DocumentTranslation } from "./components/DocumentTranslation";
 import { translateWithGemini } from "./services/openaiTranslation";
 import { checkGrammarWithGemini } from "./services/grammarChecker";
 import { ErrorDetails } from "./components/ErrorDetails";
+import AuthForm from "./components/AuthForm"; // Thêm import AuthForm
 import debounce from "lodash.debounce";
 
 function App() {
@@ -18,30 +19,37 @@ function App() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [autoTranslate, setAutoTranslate] = useState(true);
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Thêm state đăng nhập
+  const [showAuthForm, setShowAuthForm] = useState(false); // Thêm state hiển thị form đăng nhập
+
   // Thêm state cho kiểm tra lỗi
-  const [grammarErrors, setGrammarErrors] = useState({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+  const [grammarErrors, setGrammarErrors] = useState({
+    errorCount: 0,
+    errors: [],
+    checked: false,
+    timestamp: Date.now(),
+  });
   const [showErrorDetails, setShowErrorDetails] = useState(false);
   const [sourceTextWithStress, setSourceTextWithStress] = useState("");
   const [partsOfSpeech, setPartsOfSpeech] = useState([]);
   // State cho phonetics
   const [phonetics, setPhonetics] = useState([]);
-  
+
   // Cải tiến các hàm sửa lỗi để xử lý dấu câu tốt hơn
   const fixAllErrors = () => {
     if (!grammarErrors.errors || grammarErrors.errors.length === 0) return;
-    
+
     let newText = text;
-    
+
     // Sắp xếp lỗi theo vị trí bắt đầu giảm dần để tránh vấn đề khi thay thế text
     const sortedErrors = [...grammarErrors.errors].sort((a, b) => {
       const posA = newText.indexOf(a.word);
       const posB = newText.indexOf(b.word);
       return posB - posA;
     });
-    
+
     // Sửa từng lỗi một, từ phải sang trái trong văn bản
-    sortedErrors.forEach(error => {
+    sortedErrors.forEach((error) => {
       if (error.word === "[PUNCT]") {
         // Xử lý đặc biệt cho lỗi dấu câu
         if (error.position === "end") {
@@ -49,38 +57,45 @@ function App() {
           newText = newText.trimEnd() + error.suggestion;
         } else if (error.context) {
           // Xử lý thiếu dấu câu ở các vị trí khác dựa vào context
-          const contextWithoutPunct = error.context.replace(/\[PUNCT\]/g, '').trim();
+          const contextWithoutPunct = error.context
+            .replace(/\[PUNCT\]/g, "")
+            .trim();
           if (contextWithoutPunct && newText.includes(contextWithoutPunct)) {
-            const punctPos = newText.indexOf(contextWithoutPunct) + contextWithoutPunct.length;
+            const punctPos =
+              newText.indexOf(contextWithoutPunct) + contextWithoutPunct.length;
             // Kiểm tra xem đã có dấu câu ở vị trí này chưa
-            if (punctPos <= newText.length && newText[punctPos] !== error.suggestion) {
-              newText = newText.substring(0, punctPos) + 
-                      error.suggestion + 
-                      newText.substring(punctPos);
+            if (
+              punctPos <= newText.length &&
+              newText[punctPos] !== error.suggestion
+            ) {
+              newText =
+                newText.substring(0, punctPos) +
+                error.suggestion +
+                newText.substring(punctPos);
             }
           }
         }
       } else {
         // Xử lý lỗi từ thông thường
-        const escapedWord = error.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedWord = error.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         // Sử dụng regex chính xác hơn cho từ
-        const regex = new RegExp(escapedWord, 'g');
+        const regex = new RegExp(escapedWord, "g");
         newText = newText.replace(regex, error.suggestion);
       }
     });
-    
+
     setText(newText);
-    
+
     // Reset trạng thái lỗi và kích hoạt kiểm tra lại sau khi sửa
     setGrammarErrors({
       errorCount: 0,
       errors: [],
       checked: true,
-      timestamp: Date.now() // Thêm timestamp giúp React nhận biết thay đổi
+      timestamp: Date.now(), // Thêm timestamp giúp React nhận biết thay đổi
     });
-    
+
     setShowErrorDetails(false);
-    
+
     // Kích hoạt kiểm tra lỗi sau khi sửa với một chút delay
     setTimeout(() => {
       debouncedGrammarCheck.cancel();
@@ -90,9 +105,9 @@ function App() {
 
   const fixSingleError = (error) => {
     if (!error || !error.id) return;
-    
+
     let newText = text;
-    
+
     if (error.word === "[PUNCT]") {
       // Xử lý đặc biệt cho lỗi dấu câu
       if (error.position === "end") {
@@ -100,40 +115,47 @@ function App() {
         newText = newText.trimEnd() + error.suggestion;
       } else if (error.context) {
         // Xử lý thiếu dấu câu ở các vị trí khác dựa vào context
-        const contextWithoutPunct = error.context.replace(/\[PUNCT\]/g, '').trim();
+        const contextWithoutPunct = error.context
+          .replace(/\[PUNCT\]/g, "")
+          .trim();
         if (contextWithoutPunct && newText.includes(contextWithoutPunct)) {
-          const punctPos = newText.indexOf(contextWithoutPunct) + contextWithoutPunct.length;
+          const punctPos =
+            newText.indexOf(contextWithoutPunct) + contextWithoutPunct.length;
           // Kiểm tra xem đã có dấu câu ở vị trí này chưa
-          if (punctPos <= newText.length && newText[punctPos] !== error.suggestion) {
-            newText = newText.substring(0, punctPos) + 
-                    error.suggestion + 
-                    newText.substring(punctPos);
+          if (
+            punctPos <= newText.length &&
+            newText[punctPos] !== error.suggestion
+          ) {
+            newText =
+              newText.substring(0, punctPos) +
+              error.suggestion +
+              newText.substring(punctPos);
           }
         }
       }
     } else {
       // Xử lý lỗi từ thông thường
-      const escapedWord = error.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(escapedWord, 'g');
+      const escapedWord = error.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escapedWord, "g");
       newText = newText.replace(regex, error.suggestion);
     }
-    
+
     setText(newText);
-    
+
     // Lọc lỗi đã sửa ra khỏi danh sách
-    const updatedErrors = grammarErrors.errors.filter(e => e.id !== error.id);
+    const updatedErrors = grammarErrors.errors.filter((e) => e.id !== error.id);
     setGrammarErrors({
       errorCount: updatedErrors.length,
       errors: updatedErrors,
       checked: true,
-      timestamp: Date.now() // Thêm timestamp
+      timestamp: Date.now(), // Thêm timestamp
     });
-    
+
     // Đóng modal nếu không còn lỗi nào
     if (updatedErrors.length === 0) {
       setShowErrorDetails(false);
     }
-    
+
     // Kích hoạt kiểm tra lỗi sau khi sửa
     setTimeout(() => {
       debouncedGrammarCheck.cancel();
@@ -158,12 +180,12 @@ function App() {
         selectedSourceLang,
         selectedTargetLang
       );
-      
-      if (typeof result === 'object' && result.translation) {
+
+      if (typeof result === "object" && result.translation) {
         setTranslatedText(result.translation);
         setSourceTextWithStress(result.sourceTextWithStress || text);
         setPartsOfSpeech(result.partsOfSpeech || []);
-        
+
         // Lưu phonetics từ kết quả API
         if (result.phonetics && result.phonetics.length > 0) {
           setPhonetics(result.phonetics);
@@ -191,16 +213,26 @@ function App() {
   // Debounce cho kiểm tra lỗi - giảm thời gian xuống
   const debouncedGrammarCheck = debounce(async (text) => {
     if (!text.trim()) {
-      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+      setGrammarErrors({
+        errorCount: 0,
+        errors: [],
+        checked: false,
+        timestamp: Date.now(),
+      });
       return;
     }
-    
+
     try {
       const result = await checkGrammarWithGemini(text, selectedSourceLang);
       setGrammarErrors(result);
     } catch (err) {
       console.error("Grammar check error:", err);
-      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+      setGrammarErrors({
+        errorCount: 0,
+        errors: [],
+        checked: false,
+        timestamp: Date.now(),
+      });
     }
   }, 800); // Giảm xuống 800ms thay vì 1500ms
 
@@ -211,14 +243,19 @@ function App() {
     } else if (!text.trim()) {
       setTranslatedText("");
     }
-    
+
     // Thêm kiểm tra lỗi
     if (text.trim()) {
       debouncedGrammarCheck(text);
     } else {
-      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+      setGrammarErrors({
+        errorCount: 0,
+        errors: [],
+        checked: false,
+        timestamp: Date.now(),
+      });
     }
-    
+
     return () => {
       debouncedTranslate.cancel();
       debouncedGrammarCheck.cancel();
@@ -228,13 +265,18 @@ function App() {
   const handleTextChange = (e) => {
     const newText = e.target.value;
     setText(newText);
-    
+
     if (!newText.trim()) {
       setTranslatedText("");
       setSourceTextWithStress("");
       setPartsOfSpeech([]);
       setPhonetics([]);
-      setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+      setGrammarErrors({
+        errorCount: 0,
+        errors: [],
+        checked: false,
+        timestamp: Date.now(),
+      });
     }
   };
 
@@ -249,15 +291,20 @@ function App() {
     setSourceTextWithStress("");
     setPartsOfSpeech([]);
     setPhonetics([]);
-    setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
+    setGrammarErrors({
+      errorCount: 0,
+      errors: [],
+      checked: false,
+      timestamp: Date.now(),
+    });
   };
 
   const swapLanguages = () => {
     if (selectedSourceLang === "Language detection") return;
-    
+
     setSelectedSourceLang(selectedTargetLang);
     setSelectedTargetLang(selectedSourceLang);
-    
+
     if (translatedText) {
       setText(translatedText);
       setTranslatedText(text);
@@ -266,6 +313,21 @@ function App() {
       setPartsOfSpeech([]);
       setPhonetics([]);
     }
+  };
+
+  // Thêm các hàm xử lý đăng nhập
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setShowAuthForm(false);
+    setActiveTab("text"); // Quay lại tab text sau khi đăng nhập
+  };
+
+  const handleOpenAuth = () => {
+    setShowAuthForm(true);
+  };
+
+  const handleCloseAuth = () => {
+    setShowAuthForm(false);
   };
 
   return (
@@ -279,65 +341,87 @@ function App() {
           </div>
         </div>
         <div className="header-right">
-          <button className="settings-button">⚙️</button>
-          <div className="profile-circle"></div>
+          {isLoggedIn ? (
+            <div className="profile-circle">
+              <img
+                src="https://i.pravatar.cc/100"
+                alt="User"
+                className="avatar-img"
+              />
+            </div>
+          ) : (
+            <button className="simple-login-button" onClick={handleOpenAuth}>
+              Login
+            </button>
+          )}
         </div>
       </header>
 
-      <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      {!showAuthForm && (
+        <>
+          <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="translation-section">
-        {activeTab === "text" && (
-          <>
-            <div className="auto-translate-toggle">
-              <label className="auto-translate-label">
-                <input
-                  type="checkbox"
-                  checked={autoTranslate}
-                  onChange={() => setAutoTranslate(!autoTranslate)}
+          <main className="translation-section">
+            {activeTab === "text" && (
+              <>
+                <div className="auto-translate-toggle">
+                  <label className="auto-translate-label">
+                    <input
+                      type="checkbox"
+                      checked={autoTranslate}
+                      onChange={() => setAutoTranslate(!autoTranslate)}
+                    />
+                    <span className="toggle-text">Tự động dịch</span>
+                  </label>
+                </div>
+                <LanguageControls
+                  selectedSourceLang={selectedSourceLang}
+                  selectedTargetLang={selectedTargetLang}
+                  setSelectedSourceLang={setSelectedSourceLang}
+                  setSelectedTargetLang={setSelectedTargetLang}
+                  swapLanguages={swapLanguages}
                 />
-                <span className="toggle-text">Tự động dịch</span>
-              </label>
-            </div>
-            <LanguageControls
-              selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang}
-              setSelectedSourceLang={setSelectedSourceLang}
-              setSelectedTargetLang={setSelectedTargetLang}
-              swapLanguages={swapLanguages}
-            />
-            <TranslationPanel
-              text={text}
-              translatedText={translatedText}
-              sourceTextWithStress={sourceTextWithStress}
-              partsOfSpeech={partsOfSpeech}
-              phonetics={phonetics} // Truyền phonetics vào TranslationPanel
-              handleTextChange={handleTextChange}
-              charCount={text.length}
-              clearText={clearText}
-              handleTranslate={handleTranslate}
-              isTranslating={isTranslating}
-              error={error}
-              autoTranslate={autoTranslate}
-              selectedSourceLang={selectedSourceLang}
-              selectedTargetLang={selectedTargetLang}
-              grammarErrors={grammarErrors}
-              toggleErrorDetails={() => setShowErrorDetails(!showErrorDetails)}
-            />
-          </>
-        )}
-        {activeTab === "document" && <DocumentTranslation />}
-        {activeTab === "image" && <ImageTranslation />}
-      </main>
-      
+                <TranslationPanel
+                  text={text}
+                  translatedText={translatedText}
+                  sourceTextWithStress={sourceTextWithStress}
+                  partsOfSpeech={partsOfSpeech}
+                  phonetics={phonetics}
+                  handleTextChange={handleTextChange}
+                  charCount={text.length}
+                  clearText={clearText}
+                  handleTranslate={handleTranslate}
+                  isTranslating={isTranslating}
+                  error={error}
+                  autoTranslate={autoTranslate}
+                  selectedSourceLang={selectedSourceLang}
+                  selectedTargetLang={selectedTargetLang}
+                  grammarErrors={grammarErrors}
+                  toggleErrorDetails={() =>
+                    setShowErrorDetails(!showErrorDetails)
+                  }
+                />
+              </>
+            )}
+            {activeTab === "document" && <DocumentTranslation />}
+            {activeTab === "image" && <ImageTranslation />}
+          </main>
+        </>
+      )}
+
       {/* Modal chi tiết lỗi */}
       {showErrorDetails && (
-        <ErrorDetails 
-          errors={grammarErrors.errors} 
-          onClose={() => setShowErrorDetails(false)} 
+        <ErrorDetails
+          errors={grammarErrors.errors}
+          onClose={() => setShowErrorDetails(false)}
           onFixAllErrors={fixAllErrors}
           onFixSingleError={fixSingleError}
         />
+      )}
+
+      {/* Thêm phần AuthForm */}
+      {showAuthForm && (
+        <AuthForm onLoginSuccess={handleLogin} onClose={handleCloseAuth} />
       )}
     </div>
   );
