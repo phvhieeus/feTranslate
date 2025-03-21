@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { TextWithStress } from "./TextWithStress";
+import { WordCategories } from "./WordCategories";
 
 export function TranslationPanel({
   text,
   translatedText,
+  sourceTextWithStress,
+  partsOfSpeech,
+  phonetics,
   handleTextChange,
   charCount,
   clearText,
@@ -19,6 +24,9 @@ export function TranslationPanel({
   const [recognition, setRecognition] = useState(null);
   const [isSpeakingSource, setIsSpeakingSource] = useState(false);
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
+  const [showWordCategories, setShowWordCategories] = useState(true);
+  const [isTextareaFocused, setIsTextareaFocused] = useState(false);
+  const textareaRef = useRef(null);
 
   // Define language mapping for speech synthesis
   const langMap = {
@@ -146,6 +154,28 @@ export function TranslationPanel({
     }
   };
 
+  // Xử lý khi click vào container để focus vào textarea
+  const handleContainerClick = () => {
+    if (textareaRef.current && !isTextareaFocused) {
+      textareaRef.current.focus();
+    }
+  };
+
+  // Hiển thị phiên âm và trọng âm bên dưới textarea
+  const renderPhonetics = () => {
+    if (!text || !sourceTextWithStress || !phonetics || phonetics.length === 0) return null;
+    
+    return (
+      <div className="phonetics-display">
+        <TextWithStress 
+          text={sourceTextWithStress} 
+          language={langMap[selectedSourceLang] || 'en-US'} 
+          phonetics={phonetics}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="text-areas-container">
       {/* Source text area */}
@@ -167,22 +197,29 @@ export function TranslationPanel({
             </div>
           )}
           
-          <textarea
-            className="source-text"
-            placeholder="Nhập văn bản cần dịch"
-            value={text}
-            onChange={handleTextChange}
-          ></textarea>
+          {/* Luôn hiển thị textarea để nhập văn bản */}
+          <div 
+            className={`input-container ${isTextareaFocused ? 'focused' : ''}`}
+            onClick={handleContainerClick}
+          >
+            <textarea
+              ref={textareaRef}
+              className="source-text"
+              placeholder="Nhập văn bản cần dịch"
+              value={text}
+              onChange={handleTextChange}
+              onFocus={() => setIsTextareaFocused(true)}
+              onBlur={() => setIsTextareaFocused(false)}
+            ></textarea>
+          </div>
+          
+          {/* Hiển thị phiên âm và trọng âm bên dưới textarea */}
+          {renderPhonetics()}
         </div>
         
         <div className="text-controls">
           <span className="char-count">{charCount}/5000</span>
           <div className="text-buttons">
-
-            {/* Source text speech button */}
-
-            {/* Nút phát âm cho văn bản nguồn */}
-
             {text && (
               <button 
                 className={`speak-button ${isSpeakingSource ? 'speaking' : ''}`} 
@@ -194,7 +231,6 @@ export function TranslationPanel({
               </button>
             )}
             
-            {/* Microphone button */}
             <button
               className={`mic-button ${isListening ? 'mic-active' : ''}`}
               onClick={toggleListening}
@@ -225,16 +261,45 @@ export function TranslationPanel({
       {/* Target text area */}
       <div className="text-area-wrapper">
         <div className="target-header">
-          Bản dịch {isTranslating && <span className="translating">(đang dịch...)</span>}
+          <span className="target-language-label">{selectedTargetLang}</span>
+          {isTranslating && <span className="translating">(đang dịch...)</span>}
         </div>
+        
+        {/* Bản dịch thông thường */}
         <textarea
           className="target-text"
           value={translatedText}
           readOnly
         ></textarea>
+        
+        {/* Hiển thị từ loại */}
+        {translatedText && partsOfSpeech && partsOfSpeech.length > 0 && (
+          <>
+            {/* Thêm toggle hiển thị từ loại */}
+            <div className="text-enhancement-toggle">
+              <label className="category-toggle-label">
+                <input
+                  type="checkbox"
+                  checked={showWordCategories}
+                  onChange={() => setShowWordCategories(!showWordCategories)}
+                />
+                <span className="toggle-text">Hiển thị từ loại</span>
+              </label>
+            </div>
+            
+            {showWordCategories && (
+              <div className="word-categories-container">
+                <WordCategories
+                  translation={translatedText}
+                  partsOfSpeech={partsOfSpeech}
+                />
+              </div>
+            )}
+          </>
+        )}
+        
         <div className="text-controls">
           <div className="text-buttons">
-            {/* Target text speech button */}
             {translatedText && (
               <button 
                 className={`speak-button ${isSpeakingTarget ? 'speaking' : ''}`} 

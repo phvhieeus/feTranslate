@@ -1618,4 +1618,369 @@ body {
   background-color: #096dd9;
 }
 
+.text-with-stress {
+  padding: 15px;
+  line-height: 1.8;
+  font-size: 16px;
+  color: #333;
+  font-family: "Google Sans", Arial, sans-serif;
+}
 
+.text-with-stress .stressed {
+  position: relative;
+  color: #1a73e8;
+  font-weight: 500;
+}
+
+.text-with-stress .stressed::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 2px;
+  background-color: #1a73e8;
+  border-radius: 1px;
+}
+
+.word {
+  display: inline-block;
+  position: relative;
+  margin-right: 4px;
+}
+
+/* Cải thiện container hiển thị nguồn có trọng âm */
+.styled-container {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  overflow-y: auto;
+  padding: 15px;
+  border-radius: 4px;
+  font-family: "Google Sans", Arial, sans-serif;
+}
+
+/* Hiệu ứng hover cho từ có trọng âm */
+.text-with-stress .word:hover {
+  background-color: rgba(26, 115, 232, 0.08);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* Hiệu ứng khi click vào từ */
+.text-with-stress .word:active {
+  background-color: rgba(26, 115, 232, 0.15);
+}
+
+/* Hướng dẫn phát âm */
+.pronunciation-guide {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.pronunciation-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.pronunciation-text {
+  font-style: italic;
+}
+
+/* Cải thiện hiển thị từ loại */
+.word-categories-container {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  background-color: #f8f9fa;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.word-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.category {
+  border-left: 4px solid;
+  padding: 0 0 0 12px;
+  border-radius: 2px;
+}
+
+.category.noun {
+  border-color: #4285f4;
+}
+
+.category.verb {
+  border-color: #34a853;
+}
+
+.category.adjective {
+  border-color: #fbbc05;
+}
+
+.category.adverb {
+  border-color: #ea4335;
+}
+
+.category.pronoun {
+  border-color: #9c27b0;
+}
+
+.category.preposition {
+  border-color: #00bcd4;
+}
+
+.category.conjunction {
+  border-color: #ff9800;
+}
+
+.category.interjection {
+  border-color: #e91e63;
+}
+
+.category-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #202124;
+}
+
+.category-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-word {
+  background-color: #f1f3f4;
+  border-radius: 16px;
+  padding: 5px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.category-word:hover {
+  background-color: #e8f0fe;
+  border-color: #d2e3fc;
+}
+
+/* Cải thiện toggle hiển thị trọng âm và từ loại */
+.text-enhancement-toggle {
+  display: flex;
+  padding: 8px 15px;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.float-right {
+  justify-content: flex-end;
+}
+
+.stress-toggle-label, .category-toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.stress-toggle-label input, .category-toggle-label input {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  accent-color: #1a73e8;
+}
+
+.toggle-text {
+  font-size: 14px;
+  color: #5f6368;
+}
+/* Styling cho phiên âm */
+.text-with-stress {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.word-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+  display: inline-block;
+  margin-right: 12px;
+}
+
+.word {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.word:hover {
+  background-color: rgba(26, 115, 232, 0.08);
+}
+
+.word-phonetic {
+  display: block;
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 2px;
+  font-family: Arial, sans-serif;
+}
+
+.stressed {
+  position: relative;
+  color: #1a73e8;
+  font-weight: 500;
+}
+
+.stressed::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 2px;
+  background-color: #1a73e8;
+  border-radius: 1px;
+}
+
+/* Phonetics container styling */
+.phonetics-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.phonetic-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.phonetic-word {
+  font-weight: 500;
+  color: #202124;
+}
+
+.phonetic-ipa {
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 2px;
+}
+/* Styling cho phần hiển thị phiên âm và trọng âm */
+/* Cập nhật styling cho phiên âm */
+.phonetics-display {
+  padding: 8px 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.text-with-stress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  line-height: 1.6;
+}
+
+.word-container {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.word {
+  font-weight: 500;
+  color: #202124;
+}
+
+.word-phonetic {
+  font-size: 11px;
+  color: #5f6368;
+  margin-top: 2px;
+}
+
+.stressed {
+  color: #1a73e8;
+  font-weight: 600;
+  position: relative;
+}
+
+.stressed::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 2px;
+  background-color: #1a73e8;
+  border-radius: 1px;
+}
+/* Styling cho phiên âm */
+.text-with-stress {
+  padding: 5px 0;
+  font-size: 16px;
+}
+
+.word-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.word {
+  font-weight: 500;
+  color: #202124;
+}
+
+.word-phonetic {
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 2px;
+  font-family: Arial, sans-serif;
+}
+
+.stressed {
+  color: #1a73e8;
+  font-weight: 600;
+  position: relative;
+}
+
+.stressed::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 2px;
+  background-color: #1a73e8;
+  border-radius: 1px;
+}

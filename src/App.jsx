@@ -22,7 +22,11 @@ function App() {
   // Thêm state cho kiểm tra lỗi
   const [grammarErrors, setGrammarErrors] = useState({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
   const [showErrorDetails, setShowErrorDetails] = useState(false);
-
+  const [sourceTextWithStress, setSourceTextWithStress] = useState("");
+  const [partsOfSpeech, setPartsOfSpeech] = useState([]);
+  // State cho phonetics
+  const [phonetics, setPhonetics] = useState([]);
+  
   // Cải tiến các hàm sửa lỗi để xử lý dấu câu tốt hơn
   const fixAllErrors = () => {
     if (!grammarErrors.errors || grammarErrors.errors.length === 0) return;
@@ -141,6 +145,9 @@ function App() {
   const debouncedTranslate = debounce(async (text) => {
     if (!text.trim()) {
       setTranslatedText("");
+      setSourceTextWithStress("");
+      setPartsOfSpeech([]);
+      setPhonetics([]); // Reset phonetics khi không có text
       return;
     }
 
@@ -151,7 +158,27 @@ function App() {
         selectedSourceLang,
         selectedTargetLang
       );
-      setTranslatedText(result);
+      
+      if (typeof result === 'object' && result.translation) {
+        setTranslatedText(result.translation);
+        setSourceTextWithStress(result.sourceTextWithStress || text);
+        setPartsOfSpeech(result.partsOfSpeech || []);
+        
+        // Lưu phonetics từ kết quả API
+        if (result.phonetics && result.phonetics.length > 0) {
+          setPhonetics(result.phonetics);
+          console.log("Phonetics received:", result.phonetics);
+        } else {
+          setPhonetics([]);
+          console.log("No phonetics received");
+        }
+      } else {
+        setTranslatedText(result);
+        setSourceTextWithStress(text);
+        setPartsOfSpeech([]);
+        setPhonetics([]);
+      }
+
       setError(null);
     } catch (err) {
       setError("Translation failed: " + err.message);
@@ -204,6 +231,9 @@ function App() {
     
     if (!newText.trim()) {
       setTranslatedText("");
+      setSourceTextWithStress("");
+      setPartsOfSpeech([]);
+      setPhonetics([]);
       setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
     }
   };
@@ -216,6 +246,9 @@ function App() {
   const clearText = () => {
     setText("");
     setTranslatedText("");
+    setSourceTextWithStress("");
+    setPartsOfSpeech([]);
+    setPhonetics([]);
     setGrammarErrors({ errorCount: 0, errors: [], checked: false, timestamp: Date.now() });
   };
 
@@ -228,6 +261,10 @@ function App() {
     if (translatedText) {
       setText(translatedText);
       setTranslatedText(text);
+      // Reset stress and parts of speech when swapping
+      setSourceTextWithStress("");
+      setPartsOfSpeech([]);
+      setPhonetics([]);
     }
   };
 
@@ -272,6 +309,9 @@ function App() {
             <TranslationPanel
               text={text}
               translatedText={translatedText}
+              sourceTextWithStress={sourceTextWithStress}
+              partsOfSpeech={partsOfSpeech}
+              phonetics={phonetics} // Truyền phonetics vào TranslationPanel
               handleTextChange={handleTextChange}
               charCount={text.length}
               clearText={clearText}
