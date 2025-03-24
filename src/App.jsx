@@ -7,8 +7,27 @@ import { DocumentTranslation } from "./components/DocumentTranslation";
 import { translateWithGemini } from "./services/openaiTranslation";
 import { checkGrammarWithGemini } from "./services/grammarChecker";
 import { ErrorDetails } from "./components/ErrorDetails";
-import AuthForm from "./components/AuthForm"; // Thêm import AuthForm
+import AuthForm from "./components/AuthForm";
 import debounce from "lodash.debounce";
+import axios from "axios";
+
+// Đặt URL cơ sở cho tất cả các API requests
+// Thay đổi URL này theo URL backend của bạn
+axios.defaults.baseURL = "http://localhost:8080";
+
+// Thêm interceptor để đính kèm token xác thực với mỗi request
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [activeTab, setActiveTab] = useState("text");
@@ -19,8 +38,10 @@ function App() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState(null);
   const [autoTranslate, setAutoTranslate] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Thêm state đăng nhập
-  const [showAuthForm, setShowAuthForm] = useState(false); // Thêm state hiển thị form đăng nhập
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showAuthForm, setShowAuthForm] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Thêm state cho kiểm tra lỗi
   const [grammarErrors, setGrammarErrors] = useState({
@@ -34,6 +55,21 @@ function App() {
   const [partsOfSpeech, setPartsOfSpeech] = useState([]);
   // State cho phonetics
   const [phonetics, setPhonetics] = useState([]);
+
+  // Kiểm tra đăng nhập khi ứng dụng khởi động
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+      }
+    }
+  }, []);
 
   // Cải tiến các hàm sửa lỗi để xử lý dấu câu tốt hơn
   const fixAllErrors = () => {
@@ -316,10 +352,11 @@ function App() {
   };
 
   // Thêm các hàm xử lý đăng nhập
-  const handleLogin = () => {
+  const handleLogin = (userData) => {
+    setUser(userData);
     setIsLoggedIn(true);
     setShowAuthForm(false);
-    setActiveTab("text"); // Quay lại tab text sau khi đăng nhập
+    setActiveTab("text");
   };
 
   const handleOpenAuth = () => {
@@ -328,6 +365,27 @@ function App() {
 
   const handleCloseAuth = () => {
     setShowAuthForm(false);
+  };
+
+  // Thêm hàm đăng xuất
+  const handleLogout = () => {
+    axios
+      .post("/auth/logout")
+      .then(() => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+        setUser(null);
+        setIsLoggedIn(false);
+        setShowUserMenu(false);
+      })
+      .catch((error) => {
+        console.error("Logout failed:", error);
+        // Xóa dữ liệu local ngay cả khi API gặp lỗi
+        localStorage.removeItem("user");
+        localStorage.removeItem("accessToken");
+        setUser(null);
+        setIsLoggedIn(false);
+      });
   };
 
   return (
@@ -342,16 +400,33 @@ function App() {
         </div>
         <div className="header-right">
           {isLoggedIn ? (
-            <div className="profile-circle">
-              <img
-                src="https://i.pravatar.cc/100"
-                alt="User"
-                className="avatar-img"
-              />
+            <div className="user-menu">
+              <div
+                className="profile-circle"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              >
+                <img
+                  src="https://i.pravatar.cc/100"
+                  alt="User"
+                  className="avatar-img"
+                />
+              </div>
+              {showUserMenu && (
+                <div className="user-dropdown">
+                  <div className="user-info">
+                    <p className="user-name">{user?.name}</p>
+                    <p className="user-email">{user?.email}</p>
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <button className="dropdown-item" onClick={handleLogout}>
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <button className="simple-login-button" onClick={handleOpenAuth}>
-              Login
+              Đăng nhập
             </button>
           )}
         </div>
