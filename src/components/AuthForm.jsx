@@ -25,7 +25,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
 
   return (
     <div className="auth-page">
-      <div className={`auth-container ${isActive ? "active" : ""}`}>
+      <div className={`auth-container container ${isActive ? "active" : ""}`}>
         <button className="close-btn" onClick={onClose}>
           <i className="bx bx-x"></i>
         </button>
