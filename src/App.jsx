@@ -8,8 +8,10 @@ import { translateWithGemini } from "./services/openaiTranslation";
 import { checkGrammarWithGemini } from "./services/grammarChecker";
 import { ErrorDetails } from "./components/ErrorDetails";
 import AuthForm from "./components/AuthForm";
+import { LoginPrompt } from "./components/LoginPrompt";
 import debounce from "lodash.debounce";
 import axios from "axios";
+import "./App.css"; // Import CSS
 
 // Đặt URL cơ sở cho tất cả các API requests
 // Thay đổi URL này theo URL backend của bạn
@@ -42,6 +44,8 @@ function App() {
   const [showAuthForm, setShowAuthForm] = useState(false);
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [attemptedTab, setAttemptedTab] = useState(null);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Thêm state cho kiểm tra lỗi
   const [grammarErrors, setGrammarErrors] = useState({
@@ -356,7 +360,12 @@ function App() {
     setUser(userData);
     setIsLoggedIn(true);
     setShowAuthForm(false);
-    setActiveTab("text");
+
+    // Kiểm tra nếu có tab đã được người dùng cố gắng truy cập trước khi đăng nhập
+    if (attemptedTab) {
+      setActiveTab(attemptedTab);
+      setAttemptedTab(null);
+    }
   };
 
   const handleOpenAuth = () => {
@@ -365,6 +374,23 @@ function App() {
 
   const handleCloseAuth = () => {
     setShowAuthForm(false);
+  };
+
+  // Hàm xử lý khi người dùng nhấp vào một tab bị khóa
+  const handleLockedTabClick = (tab) => {
+    setAttemptedTab(tab);
+    setShowLoginPrompt(true);
+  };
+
+  // Hàm đóng LoginPrompt
+  const handleCloseLoginPrompt = () => {
+    setShowLoginPrompt(false);
+  };
+
+  // Hàm mở form đăng nhập từ LoginPrompt
+  const handleLoginFromPrompt = () => {
+    setShowLoginPrompt(false);
+    setShowAuthForm(true);
   };
 
   // Thêm hàm đăng xuất
@@ -377,6 +403,11 @@ function App() {
         setUser(null);
         setIsLoggedIn(false);
         setShowUserMenu(false);
+
+        // Nếu đang ở tab cần đăng nhập, chuyển về tab text
+        if (activeTab !== "text") {
+          setActiveTab("text");
+        }
       })
       .catch((error) => {
         console.error("Logout failed:", error);
@@ -385,6 +416,9 @@ function App() {
         localStorage.removeItem("accessToken");
         setUser(null);
         setIsLoggedIn(false);
+        if (activeTab !== "text") {
+          setActiveTab("text");
+        }
       });
   };
 
@@ -434,7 +468,12 @@ function App() {
 
       {!showAuthForm && (
         <>
-          <TranslationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <TranslationTabs
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            isLoggedIn={isLoggedIn}
+            onLoginClick={handleOpenAuth}
+          />
 
           <main className="translation-section">
             {activeTab === "text" && (
@@ -478,8 +517,22 @@ function App() {
                 />
               </>
             )}
-            {activeTab === "document" && <DocumentTranslation />}
-            {activeTab === "image" && <ImageTranslation />}
+            {activeTab === "document" && isLoggedIn && <DocumentTranslation />}
+            {activeTab === "image" && isLoggedIn && <ImageTranslation />}
+            {(activeTab === "document" || activeTab === "image") &&
+              !isLoggedIn && (
+                <div className="locked-feature-message">
+                  <div className="lock-icon">🔒</div>
+                  <h3>Tính năng này yêu cầu đăng nhập</h3>
+                  <p>
+                    Vui lòng đăng nhập để sử dụng tính năng dịch{" "}
+                    {activeTab === "document" ? "tài liệu" : "hình ảnh"}.
+                  </p>
+                  <button className="login-button" onClick={handleOpenAuth}>
+                    Đăng nhập ngay
+                  </button>
+                </div>
+              )}
           </main>
         </>
       )}
@@ -497,6 +550,14 @@ function App() {
       {/* Thêm phần AuthForm */}
       {showAuthForm && (
         <AuthForm onLoginSuccess={handleLogin} onClose={handleCloseAuth} />
+      )}
+
+      {/* Thêm phần LoginPrompt */}
+      {showLoginPrompt && (
+        <LoginPrompt
+          onClose={handleCloseLoginPrompt}
+          onLogin={handleLoginFromPrompt}
+        />
       )}
     </div>
   );
