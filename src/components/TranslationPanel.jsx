@@ -123,7 +123,7 @@ export function TranslationPanel({
       
       window.speechSynthesis.speak(utterance);
     } else {
-      console.error('Trình duyệt không hỗ trợ phát âm');
+      console.error('The browser does not support speech');
     }
   };
 
@@ -150,7 +150,7 @@ export function TranslationPanel({
       
       window.speechSynthesis.speak(utterance);
     } else {
-      console.error('Trình duyệt không hỗ trợ phát âm');
+      console.error('The browser does not support speech');
     }
   };
 
@@ -186,7 +186,7 @@ export function TranslationPanel({
             <div className="grammar-error-banner">
               <span className="error-icon">⚠️</span>
               <span className="error-count">
-                Phát hiện {grammarErrors.errorCount} lỗi trong văn bản của bạn
+              Detected {grammarErrors.errorCount} errors in your text.
               </span>
               <button 
                 className="view-errors-button" 
@@ -205,7 +205,7 @@ export function TranslationPanel({
             <textarea
               ref={textareaRef}
               className="source-text"
-              placeholder="Nhập văn bản cần dịch"
+              placeholder="Enter the text to be translated"
               value={text}
               onChange={handleTextChange}
               onFocus={() => setIsTextareaFocused(true)}
@@ -224,7 +224,7 @@ export function TranslationPanel({
               <button 
                 className={`speak-button ${isSpeakingSource ? 'speaking' : ''}`} 
                 onClick={speakSourceText}
-                title="Phát âm văn bản gốc"
+                title="Pronounce the original text"
                 disabled={isSpeakingSource || isSpeakingTarget}
               >
                 {isSpeakingSource ? '🔊' : '🔈'}
@@ -234,7 +234,7 @@ export function TranslationPanel({
             <button
               className={`mic-button ${isListening ? 'mic-active' : ''}`}
               onClick={toggleListening}
-              title={isListening ? "Dừng ghi âm" : "Nhập bằng giọng nói"}
+              title={isListening ? "Stop recording" : "Voice input"}
             >
               {isListening ? '🔴 🎤' : '🎤'}
             </button>
@@ -245,7 +245,7 @@ export function TranslationPanel({
                 onClick={handleTranslate} 
                 disabled={!text.trim() || isTranslating}
               >
-                {isTranslating ? "Đang dịch..." : "Dịch"}
+                {isTranslating ? "Translating..." : "Translate"}
               </button>
             )}
             <button 
@@ -262,7 +262,7 @@ export function TranslationPanel({
       <div className="text-area-wrapper">
         <div className="target-header">
           <span className="target-language-label">{selectedTargetLang}</span>
-          {isTranslating && <span className="translating">(đang dịch...)</span>}
+          {isTranslating && <span className="translating">(Translating...)</span>}
         </div>
         
         {/* Bản dịch thông thường */}
@@ -283,7 +283,7 @@ export function TranslationPanel({
                   checked={showWordCategories}
                   onChange={() => setShowWordCategories(!showWordCategories)}
                 />
-                <span className="toggle-text">Hiển thị từ loại</span>
+                <span className="toggle-text">Show word type</span>
               </label>
             </div>
             
@@ -304,7 +304,7 @@ export function TranslationPanel({
               <button 
                 className={`speak-button ${isSpeakingTarget ? 'speaking' : ''}`} 
                 onClick={speakTargetText}
-                title="Phát âm bản dịch"
+                title="Pronounce translation"
                 disabled={isSpeakingSource || isSpeakingTarget}
               >
                 {isSpeakingTarget ? '🔊' : '🔈'}
@@ -314,7 +314,7 @@ export function TranslationPanel({
               <button 
                 className="copy-button" 
                 onClick={() => navigator.clipboard.writeText(translatedText)}
-                title="Sao chép bản dịch"
+                title="Copy translation"
               >
                 📋
               </button>

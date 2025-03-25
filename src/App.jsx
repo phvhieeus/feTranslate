@@ -446,7 +446,7 @@ function App() {
                       checked={autoTranslate}
                       onChange={() => setAutoTranslate(!autoTranslate)}
                     />
-                    <span className="toggle-text">Tự động dịch</span>
+                    <span className="toggle-text">Auto-translate</span>
                   </label>
                 </div>
                 <LanguageControls

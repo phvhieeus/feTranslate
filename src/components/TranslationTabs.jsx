@@ -8,21 +8,21 @@ export const TranslationTabs = ({ activeTab, setActiveTab }) => {
         onClick={() => setActiveTab("text")}
       >
         <span className="tab-icon">📝</span>
-        Văn bản
+        Text
       </button>
       <button
         className={`tab ${activeTab === "image" ? "active" : ""}`}
         onClick={() => setActiveTab("image")}
       >
         <span className="tab-icon">🖼️</span>
-        Hình ảnh
+        Image
       </button>
       <button
         className={`tab ${activeTab === "document" ? "active" : ""}`}
         onClick={() => setActiveTab("document")}
       >
         <span className="tab-icon">📄</span>
-        Tài liệu
+        Document
       </button>
     </div>
   );
