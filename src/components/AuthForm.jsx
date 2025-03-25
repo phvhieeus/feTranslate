@@ -258,7 +258,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
           </div>
 
           <div className="toggle-panel toggle-right">
-            <h1>Chào mừng trở lại!</h1>
+            <h1>WELLCOME</h1>
             <p>Bạn đã có tài khoản?</p>
             <button className="btn login-btn" onClick={handleLoginClick}>
               Đăng nhập
