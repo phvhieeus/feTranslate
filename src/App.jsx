@@ -453,14 +453,14 @@ function App() {
                   </div>
                   <div className="dropdown-divider"></div>
                   <button className="dropdown-item" onClick={handleLogout}>
-                    Đăng xuất
+                    Log out
                   </button>
                 </div>
               )}
             </div>
           ) : (
             <button className="simple-login-button" onClick={handleOpenAuth}>
-              Đăng nhập
+              Log in
             </button>
           )}
         </div>
@@ -523,13 +523,13 @@ function App() {
               !isLoggedIn && (
                 <div className="locked-feature-message">
                   <div className="lock-icon">🔒</div>
-                  <h3>Tính năng này yêu cầu đăng nhập</h3>
+                  <h3>This feature requires login.</h3>
                   <p>
-                    Vui lòng đăng nhập để sử dụng tính năng dịch{" "}
+                    Please login to use translation feature{" "}
                     {activeTab === "document" ? "tài liệu" : "hình ảnh"}.
                   </p>
                   <button className="login-button" onClick={handleOpenAuth}>
-                    Đăng nhập ngay
+                    Sign in now
                   </button>
                 </div>
               )}

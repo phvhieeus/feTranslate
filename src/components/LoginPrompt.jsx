@@ -7,22 +7,22 @@ export const LoginPrompt = ({ onClose, onLogin }) => {
     <div className="login-prompt-overlay">
       <div className="login-prompt-container">
         <div className="login-prompt-header">
-          <h3>Đăng nhập để tiếp tục</h3>
+          <h3>Sign in to continue</h3>
           <button className="close-button" onClick={onClose}>
             ×
           </button>
         </div>
         <div className="login-prompt-content">
           <div className="lock-icon">🔒</div>
-          <p>Chức năng này yêu cầu đăng nhập để sử dụng.</p>
-          <p>Vui lòng đăng nhập để tiếp tục.</p>
+          <p>This feature requires login to use</p>
+          <p>Please login to continue</p>
         </div>
         <div className="login-prompt-buttons">
           <button className="cancel-button" onClick={onClose}>
-            Hủy bỏ
+            Cancel
           </button>
           <button className="login-button" onClick={onLogin}>
-            Đăng nhập
+            Log in
           </button>
         </div>
       </div>

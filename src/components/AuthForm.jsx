@@ -99,7 +99,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
 
       if (response.data) {
         alert("Registration successful! Please log in.");
-        setIsActive(false); // Chuyển về form đăng nhập
+        setIsActive(false);
         setLoginData({
           username: registerData.email,
           password: "",
@@ -210,7 +210,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
               />
               <i className="bx bxs-lock-alt"></i>
             </div>
-            
+
             <button type="submit" className="btn" disabled={loading}>
               {loading ? "Processing..." : "Sign Up"}
             </button>
@@ -219,11 +219,11 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
 
         <div className="toggle-box">
           <div className="toggle-panel toggle-left">
-          <h1>Hello!</h1>
-          <p>Don't have an account?</p>
+            <h1>Hello!</h1>
+            <p>Don't have an account?</p>
 
             <button className="btn register-btn" onClick={handleRegisterClick}>
-            Sign Up
+              Sign Up
             </button>
           </div>
 
@@ -231,7 +231,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
             <h1>WELLCOME</h1>
             <p>Already have an account?</p>
             <button className="btn login-btn" onClick={handleLoginClick}>
-            Log in
+              Log in
             </button>
           </div>
         </div>

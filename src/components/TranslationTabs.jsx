@@ -37,14 +37,14 @@ export const TranslationTabs = ({
           onClick={() => handleTabClick("text")}
         >
           <span className="tab-icon">📝</span>
-          Văn bản
+          Text
         </button>
         <button
           className={`tab ${activeTab === "image" ? "active" : ""}`}
           onClick={() => handleTabClick("image")}
         >
           <span className="tab-icon">🖼️</span>
-          Hình ảnh
+          Image
           {!isLoggedIn && <span className="lock-icon">🔒</span>}
         </button>
         <button
@@ -52,7 +52,7 @@ export const TranslationTabs = ({
           onClick={() => handleTabClick("document")}
         >
           <span className="tab-icon">📄</span>
-          Tài liệu
+          Document
           {!isLoggedIn && <span className="lock-icon">🔒</span>}
         </button>
       </div>
