@@ -24,9 +24,11 @@ export function TranslationPanel({
   const [recognition, setRecognition] = useState(null);
   const [isSpeakingSource, setIsSpeakingSource] = useState(false);
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
-  const [showWordCategories, setShowWordCategories] = useState(true);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   const textareaRef = useRef(null);
+
+  // Check if input is a single word
+  const isSingleWord = text.trim().split(/\s+/).length === 1 && text.trim().length > 0;
 
   // Define language mapping for speech synthesis
   const langMap = {
@@ -88,6 +90,14 @@ export function TranslationPanel({
     };
   }, [selectedSourceLang]); // Re-initialize when source language changes
 
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [text]);
+
   const toggleListening = () => {
     if (!recognition) return;
     
@@ -123,7 +133,7 @@ export function TranslationPanel({
       
       window.speechSynthesis.speak(utterance);
     } else {
-      console.error('The browser does not support speech');
+      console.error('Trình duyệt không hỗ trợ phát âm');
     }
   };
 
@@ -150,7 +160,7 @@ export function TranslationPanel({
       
       window.speechSynthesis.speak(utterance);
     } else {
-      console.error('The browser does not support speech');
+      console.error('Trình duyệt không hỗ trợ phát âm');
     }
   };
 
@@ -186,7 +196,7 @@ export function TranslationPanel({
             <div className="grammar-error-banner">
               <span className="error-icon">⚠️</span>
               <span className="error-count">
-              Detected {grammarErrors.errorCount} errors in your text.
+                Phát hiện {grammarErrors.errorCount} lỗi trong văn bản của bạn
               </span>
               <button 
                 className="view-errors-button" 
@@ -205,7 +215,7 @@ export function TranslationPanel({
             <textarea
               ref={textareaRef}
               className="source-text"
-              placeholder="Enter the text to be translated"
+              placeholder="Nhập văn bản cần dịch"
               value={text}
               onChange={handleTextChange}
               onFocus={() => setIsTextareaFocused(true)}
@@ -224,7 +234,7 @@ export function TranslationPanel({
               <button 
                 className={`speak-button ${isSpeakingSource ? 'speaking' : ''}`} 
                 onClick={speakSourceText}
-                title="Pronounce the original text"
+                title="Phát âm văn bản gốc"
                 disabled={isSpeakingSource || isSpeakingTarget}
               >
                 {isSpeakingSource ? '🔊' : '🔈'}
@@ -234,7 +244,7 @@ export function TranslationPanel({
             <button
               className={`mic-button ${isListening ? 'mic-active' : ''}`}
               onClick={toggleListening}
-              title={isListening ? "Stop recording" : "Voice input"}
+              title={isListening ? "Dừng ghi âm" : "Nhập bằng giọng nói"}
             >
               {isListening ? '🔴 🎤' : '🎤'}
             </button>
@@ -245,7 +255,7 @@ export function TranslationPanel({
                 onClick={handleTranslate} 
                 disabled={!text.trim() || isTranslating}
               >
-                {isTranslating ? "Translating..." : "Translate"}
+                {isTranslating ? "Đang dịch..." : "Dịch"}
               </button>
             )}
             <button 
@@ -262,41 +272,29 @@ export function TranslationPanel({
       <div className="text-area-wrapper">
         <div className="target-header">
           <span className="target-language-label">{selectedTargetLang}</span>
-          {isTranslating && <span className="translating">(Translating...)</span>}
+          {isTranslating && <span className="translating">(đang dịch...)</span>}
         </div>
         
-        {/* Bản dịch thông thường */}
-        <textarea
-          className="target-text"
-          value={translatedText}
-          readOnly
-        ></textarea>
-        
-        {/* Hiển thị từ loại */}
-        {translatedText && partsOfSpeech && partsOfSpeech.length > 0 && (
-          <>
-            {/* Thêm toggle hiển thị từ loại */}
-            <div className="text-enhancement-toggle">
-              <label className="category-toggle-label">
-                <input
-                  type="checkbox"
-                  checked={showWordCategories}
-                  onChange={() => setShowWordCategories(!showWordCategories)}
-                />
-                <span className="toggle-text">Show word type</span>
-              </label>
+        {/* Target content container */}
+        <div className="target-content">
+          {/* Bản dịch thông thường */}
+          <textarea
+            className="target-text"
+            value={translatedText}
+            readOnly
+          ></textarea>
+          
+          {/* Hiển thị từ loại chỉ khi nhập một từ duy nhất - tự động hiển thị không cần toggle */}
+          {translatedText && partsOfSpeech && partsOfSpeech.length > 0 && isSingleWord && (
+            <div className="word-categories-container">
+              <h3 className="categories-title">Phân loại từ</h3>
+              <WordCategories
+                translation={translatedText}
+                partsOfSpeech={partsOfSpeech}
+              />
             </div>
-            
-            {showWordCategories && (
-              <div className="word-categories-container">
-                <WordCategories
-                  translation={translatedText}
-                  partsOfSpeech={partsOfSpeech}
-                />
-              </div>
-            )}
-          </>
-        )}
+          )}
+        </div>
         
         <div className="text-controls">
           <div className="text-buttons">
@@ -304,7 +302,7 @@ export function TranslationPanel({
               <button 
                 className={`speak-button ${isSpeakingTarget ? 'speaking' : ''}`} 
                 onClick={speakTargetText}
-                title="Pronounce translation"
+                title="Phát âm bản dịch"
                 disabled={isSpeakingSource || isSpeakingTarget}
               >
                 {isSpeakingTarget ? '🔊' : '🔈'}
@@ -314,7 +312,7 @@ export function TranslationPanel({
               <button 
                 className="copy-button" 
                 onClick={() => navigator.clipboard.writeText(translatedText)}
-                title="Copy translation"
+                title="Sao chép bản dịch"
               >
                 📋
               </button>
