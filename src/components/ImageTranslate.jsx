@@ -77,7 +77,7 @@ export function ImageTranslation() {
     
     // Check file format
     if (!file.type.match('image.*')) {
-      setError("Vui lòng chọn file hình ảnh");
+      setError("Please select an image file");
       return;
     }
     
@@ -141,13 +141,13 @@ export function ImageTranslation() {
           setTranslatedText(translated);
         } catch (translationError) {
           console.error("Translation error:", translationError);
-          setError(`Lỗi khi dịch văn bản: ${translationError.message}`);
+          setError(`Error translating text: ${translationError.message}`);
         }
       }
       
     } catch (err) {
       console.error("OCR error:", err);
-      setError(`Lỗi khi xử lý ảnh: ${err.message}`);
+      setError(`Error processing image: ${err.message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -192,7 +192,7 @@ export function ImageTranslation() {
   // Handle copy text button click
   const handleCopyText = (text) => {
     navigator.clipboard.writeText(text);
-    alert("Đã sao chép văn bản vào clipboard!");
+    alert("Text copied to clipboard!");
   };
 
   // Prevent default behavior for drag and drop
@@ -223,14 +223,14 @@ export function ImageTranslation() {
           <div className="upload-cloud-icon">
             <span role="img" aria-label="upload">🖼️</span>
           </div>
-          <div className="upload-text">Kéo thả hoặc dán ảnh vào đây</div>
+          <div className="upload-text">Drag and drop or paste an image here</div>
           <div className="upload-options">
             <button className="upload-btn" onClick={handleBrowseClick}>
-              Chọn ảnh từ thiết bị
+            Select an image from your device
             </button>
             <button className="clipboard-btn" onClick={handleClipboardClick}>
               <span className="clipboard-icon">📋</span>
-              Dán ảnh từ clipboard
+              Paste image from clipboard.
             </button>
             <input
               type="file"
@@ -240,8 +240,8 @@ export function ImageTranslation() {
               className="hidden-file-input"
             />
             <div className="supported-formats">
-              Hỗ trợ: JPG, PNG, GIF, BMP, WEBP
-              <a href="#" className="learn-more-link">Tìm hiểu thêm</a>
+            Support: JPG, PNG, GIF, BMP, WEBP
+              <a href="#" className="learn-more-link">Learn more</a>
             </div>
           </div>
         </div>
@@ -250,7 +250,7 @@ export function ImageTranslation() {
           <div className="image-translation-header">
             <div className="language-selection">
               <div className="language-selector">
-                <label>Ngôn ngữ trong ảnh:</label>
+                <label>Language in image:</label>
                 <select value={selectedSourceLang} onChange={handleSourceLanguageChange}>
                   {supportedLanguages.map(lang => (
                     <option key={lang.value} value={lang.value}>
@@ -265,7 +265,7 @@ export function ImageTranslation() {
                 </button>
               </div>
               <div className="language-selector">
-                <label>Dịch sang:</label>
+                <label>Translate to:</label>
                 <select value={selectedTargetLang} onChange={handleTargetLanguageChange}>
                   {getTargetLanguages().map(lang => (
                     <option key={lang.value} value={lang.value}>
@@ -281,10 +281,10 @@ export function ImageTranslation() {
                 onClick={extractTextFromImage}
                 disabled={isProcessing || !selectedImage}
               >
-                {isProcessing ? `Đang xử lý... ${ocrProgress}%` : "Trích xuất & Dịch"}
+                {isProcessing ? `Processing... ${ocrProgress}%` : "Extract & Translate"}
               </button>
               <button className="clear-button" onClick={handleClearImage}>
-                Xóa ảnh
+              Delete image
               </button>
             </div>
           </div>
@@ -300,13 +300,13 @@ export function ImageTranslation() {
                   className={`tab-button ${activeTab === 'original' ? 'active' : ''}`}
                   onClick={() => setActiveTab('original')}
                 >
-                  Văn bản gốc
+                  Original text
                 </button>
                 <button 
                   className={`tab-button ${activeTab === 'translated' ? 'active' : ''}`}
                   onClick={() => setActiveTab('translated')}
                 >
-                  Bản dịch
+                  Translation
                 </button>
               </div>
               
@@ -316,7 +316,7 @@ export function ImageTranslation() {
                     <textarea 
                       value={extractedText} 
                       readOnly 
-                      placeholder="Văn bản trích xuất từ ảnh sẽ hiển thị ở đây..."
+                      placeholder="Text extracted from the image will appear here..."
                       className="text-result-area"
                     />
                     {extractedText && (
@@ -324,7 +324,7 @@ export function ImageTranslation() {
                         className="copy-button" 
                         onClick={() => handleCopyText(extractedText)}
                       >
-                        📋 Sao chép văn bản gốc
+                        📋 Copy original text
                       </button>
                     )}
                   </div>
@@ -333,7 +333,7 @@ export function ImageTranslation() {
                     <textarea 
                       value={translatedText} 
                       readOnly 
-                      placeholder="Bản dịch sẽ hiển thị ở đây..."
+                      placeholder="The translation will appear here..."
                       className="text-result-area"
                     />
                     {translatedText && (
@@ -341,7 +341,7 @@ export function ImageTranslation() {
                         className="copy-button" 
                         onClick={() => handleCopyText(translatedText)}
                       >
-                        📋 Sao chép bản dịch
+                        📋 Copy original text
                       </button>
                     )}
                   </div>

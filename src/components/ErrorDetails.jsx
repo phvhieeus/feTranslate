@@ -7,11 +7,11 @@ export function ErrorDetails({ errors, onClose, onFixAllErrors, onFixSingleError
       <div className="error-details-modal">
         <div className="error-details-content">
           <div className="error-details-header">
-            <h3>Kiểm tra lỗi</h3>
+            <h3>Check for errors.</h3>
             <button className="close-button" onClick={onClose}>×</button>
           </div>
           <div className="error-details-body">
-            <p>Không tìm thấy lỗi nào trong văn bản của bạn.</p>
+            <p>No errors found in your text.</p>
           </div>
         </div>
       </div>
@@ -22,14 +22,14 @@ export function ErrorDetails({ errors, onClose, onFixAllErrors, onFixSingleError
     <div className="error-details-modal">
       <div className="error-details-content">
         <div className="error-details-header">
-          <h3>Danh sách lỗi ({errors.length})</h3>
+          <h3>Error list ({errors.length})</h3>
           <div className="error-actions">
             {errors.length > 0 && (
               <button 
                 className="fix-all-button" 
                 onClick={onFixAllErrors}
               >
-                Sửa tất cả lỗi
+                Fix all errors.
               </button>
             )}
             <button className="close-button" onClick={onClose}>×</button>
@@ -47,19 +47,19 @@ export function ErrorDetails({ errors, onClose, onFixAllErrors, onFixSingleError
                     className="fix-error-button"
                     onClick={() => onFixSingleError(error)}
                   >
-                    Sửa lỗi này
+                    Fix this error
                   </button>
                 </div>
                 
                 {error.context && (
                   <div className="error-context">
-                    <span className="context-label">Bối cảnh:</span> {error.context}
+                    <span className="context-label">Context:</span> {error.context}
                   </div>
                 )}
                 
                 {error.explanation && (
                   <div className="error-explanation">
-                    <span className="explanation-label">Giải thích:</span> {error.explanation}
+                    <span className="explanation-label">Explanation:</span> {error.explanation}
                   </div>
                 )}
               </li>

@@ -24,9 +24,11 @@ export function TranslationPanel({
   const [recognition, setRecognition] = useState(null);
   const [isSpeakingSource, setIsSpeakingSource] = useState(false);
   const [isSpeakingTarget, setIsSpeakingTarget] = useState(false);
-  const [showWordCategories, setShowWordCategories] = useState(true);
   const [isTextareaFocused, setIsTextareaFocused] = useState(false);
   const textareaRef = useRef(null);
+
+  // Check if input is a single word
+  const isSingleWord = text.trim().split(/\s+/).length === 1 && text.trim().length > 0;
 
   // Define language mapping for speech synthesis
   const langMap = {
@@ -87,6 +89,14 @@ export function TranslationPanel({
       }
     };
   }, [selectedSourceLang]); // Re-initialize when source language changes
+
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [text]);
 
   const toggleListening = () => {
     if (!recognition) return;
@@ -265,38 +275,26 @@ export function TranslationPanel({
           {isTranslating && <span className="translating">(đang dịch...)</span>}
         </div>
         
-        {/* Bản dịch thông thường */}
-        <textarea
-          className="target-text"
-          value={translatedText}
-          readOnly
-        ></textarea>
-        
-        {/* Hiển thị từ loại */}
-        {translatedText && partsOfSpeech && partsOfSpeech.length > 0 && (
-          <>
-            {/* Thêm toggle hiển thị từ loại */}
-            <div className="text-enhancement-toggle">
-              <label className="category-toggle-label">
-                <input
-                  type="checkbox"
-                  checked={showWordCategories}
-                  onChange={() => setShowWordCategories(!showWordCategories)}
-                />
-                <span className="toggle-text">Hiển thị từ loại</span>
-              </label>
+        {/* Target content container */}
+        <div className="target-content">
+          {/* Bản dịch thông thường */}
+          <textarea
+            className="target-text"
+            value={translatedText}
+            readOnly
+          ></textarea>
+          
+          {/* Hiển thị từ loại chỉ khi nhập một từ duy nhất - tự động hiển thị không cần toggle */}
+          {translatedText && partsOfSpeech && partsOfSpeech.length > 0 && isSingleWord && (
+            <div className="word-categories-container">
+              <h3 className="categories-title">Phân loại từ</h3>
+              <WordCategories
+                translation={translatedText}
+                partsOfSpeech={partsOfSpeech}
+              />
             </div>
-            
-            {showWordCategories && (
-              <div className="word-categories-container">
-                <WordCategories
-                  translation={translatedText}
-                  partsOfSpeech={partsOfSpeech}
-                />
-              </div>
-            )}
-          </>
-        )}
+          )}
+        </div>
         
         <div className="text-controls">
           <div className="text-buttons">

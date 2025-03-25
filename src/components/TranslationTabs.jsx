@@ -1,4 +1,3 @@
-// src/components/TranslationTabs.jsx
 import React, { useState } from "react";
 import { LoginPrompt } from "./LoginPrompt";
 
