@@ -64,7 +64,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin."
+          "Login failed. Please check your information."
       );
     } finally {
       setLoading(false);
@@ -79,13 +79,13 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
     try {
       // Validate phone number
       if (!/^\d{10}$/.test(registerData.phone)) {
-        throw new Error("Số điện thoại phải có 10 chữ số");
+        throw new Error("The phone number must have 10 digits.");
       }
 
       // Validate age
       const age = parseInt(registerData.age);
       if (isNaN(age) || age <= 0 || age > 122) {
-        throw new Error("Tuổi phải là số dương và không quá 122");
+        throw new Error("Age must be a positive number and not exceed 122.");
       }
 
       const response = await axios.post("/auth/register", {
@@ -98,7 +98,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
       });
 
       if (response.data) {
-        alert("Đăng ký thành công! Vui lòng đăng nhập.");
+        alert("Registration successful! Please log in.");
         setIsActive(false); // Chuyển về form đăng nhập
         setLoginData({
           username: registerData.email,
@@ -109,7 +109,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Đăng ký không thành công. Vui lòng kiểm tra lại thông tin."
+          "Registration failed. Please check your information."
       );
     } finally {
       setLoading(false);
@@ -125,7 +125,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
 
         <div className="form-box login">
           <form onSubmit={handleSubmitLogin}>
-            <h1>Đăng Nhập</h1>
+            <h1>Log In</h1>
             {error && !isActive && <div className="error-message">{error}</div>}
             <div className="input-box">
               <input
@@ -142,7 +142,7 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
               <input
                 type="password"
                 name="password"
-                placeholder="Mật khẩu"
+                placeholder="Password"
                 required
                 value={loginData.password}
                 onChange={handleLoginChange}
@@ -150,12 +150,12 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
               <i className="bx bxs-lock-alt"></i>
             </div>
             <div className="forgot-link">
-              <a href="#">Quên mật khẩu?</a>
+              <a href="#">Forgot password?</a>
             </div>
             <button type="submit" className="btn" disabled={loading}>
-              {loading ? "Đang xử lý..." : "Đăng nhập"}
+              {loading ? "Processing..." : "Login"}
             </button>
-            <p>hoặc đăng nhập với</p>
+            <p>or log in with</p>
             <div className="social-icons">
               <a href="#">
                 <i className="bx bxl-google"></i>
@@ -175,13 +175,13 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
 
         <div className="form-box register">
           <form onSubmit={handleSubmitRegister}>
-            <h1>Đăng Ký</h1>
+            <h1>Sign Up</h1>
             {error && isActive && <div className="error-message">{error}</div>}
             <div className="input-box">
               <input
                 type="text"
                 name="name"
-                placeholder="Họ và tên"
+                placeholder="Your Name"
                 required
                 value={registerData.name}
                 onChange={handleRegisterChange}
@@ -203,65 +203,35 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
               <input
                 type="password"
                 name="password"
-                placeholder="Mật khẩu"
+                placeholder="Password"
                 required
                 value={registerData.password}
                 onChange={handleRegisterChange}
               />
               <i className="bx bxs-lock-alt"></i>
             </div>
-            <div className="input-box">
-              <input
-                type="text"
-                name="phone"
-                placeholder="Số điện thoại"
-                required
-                value={registerData.phone}
-                onChange={handleRegisterChange}
-              />
-              <i className="bx bxs-phone"></i>
-            </div>
-            <div className="input-box">
-              <input
-                type="number"
-                name="age"
-                placeholder="Tuổi"
-                required
-                value={registerData.age}
-                onChange={handleRegisterChange}
-              />
-              <i className="bx bxs-calendar"></i>
-            </div>
-            <div className="input-box">
-              <input
-                type="text"
-                name="address"
-                placeholder="Địa chỉ"
-                value={registerData.address}
-                onChange={handleRegisterChange}
-              />
-              <i className="bx bxs-map"></i>
-            </div>
+            
             <button type="submit" className="btn" disabled={loading}>
-              {loading ? "Đang xử lý..." : "Đăng ký"}
+              {loading ? "Processing..." : "Sign Up"}
             </button>
           </form>
         </div>
 
         <div className="toggle-box">
           <div className="toggle-panel toggle-left">
-            <h1>Xin chào!</h1>
-            <p>Bạn chưa có tài khoản?</p>
+          <h1>Hello!</h1>
+          <p>Don't have an account?</p>
+
             <button className="btn register-btn" onClick={handleRegisterClick}>
-              Đăng ký
+            Sign Up
             </button>
           </div>
 
           <div className="toggle-panel toggle-right">
             <h1>WELLCOME</h1>
-            <p>Bạn đã có tài khoản?</p>
+            <p>Already have an account?</p>
             <button className="btn login-btn" onClick={handleLoginClick}>
-              Đăng nhập
+            Log in
             </button>
           </div>
         </div>
