@@ -1,3 +1,4 @@
+// services/authService.js
 import axios from "axios";
 
 export const authService = {
@@ -26,7 +27,6 @@ export const authService = {
       localStorage.removeItem("accessToken");
     } catch (error) {
       console.error("Logout error:", error);
-      // Xóa dữ liệu local ngay cả khi API gặp lỗi
       localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
     }
@@ -35,6 +35,19 @@ export const authService = {
   getCurrentUser: async () => {
     try {
       const response = await axios.get("/auth/account");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateProfile: async (userData) => {
+    try {
+      const response = await axios.put("/auth/update-profile", userData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       throw error;

@@ -2604,7 +2604,7 @@ body {
 
 /* Add overlay when sidebar is open */
 .App::after {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -2620,4 +2620,185 @@ body {
 .App.sidebar-open::after {
   opacity: 1;
   visibility: visible;
+}
+
+.profile-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.profile-form-container {
+  width: 450px;
+  max-width: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.profile-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.profile-form-header h2 {
+  margin: 0;
+  color: #202124;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #5f6368;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: #f1f3f4;
+}
+
+.profile-form {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-group i {
+  position: absolute;
+  left: 12px;
+  color: #5f6368;
+  font-size: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.disabled-input {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.password-section {
+  margin: 20px 0;
+  padding-top: 5px;
+  border-top: 1px solid #eee;
+}
+
+.toggle-password-btn {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.toggle-password-btn:hover {
+  background-color: #f1f3f4;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.cancel-btn,
+.update-btn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: #f1f3f4;
+  border: none;
+  color: #5f6368;
+}
+
+.cancel-btn:hover {
+  background: #e8eaed;
+}
+
+.update-btn {
+  background: #1a73e8;
+  border: none;
+  color: white;
+}
+
+.update-btn:hover {
+  background: #1557b0;
+}
+
+.update-btn:disabled {
+  background: #dadce0;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #fce8e6;
+  color: #d93025;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 20px;
+  font-size: 14px;
+}
+
+.readonly-input {
+  background-color: #f8f9fa !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+}
+
+.readonly-input:focus {
+  border-color: #dadce0 !important;
+  box-shadow: none !important;
 }

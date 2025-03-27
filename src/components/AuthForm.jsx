@@ -54,9 +54,10 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
       });
 
       if (response.data) {
+        // response.data sẽ chứa thông tin user từ database
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("accessToken", response.data.accessToken);
-        if (onLoginSuccess) onLoginSuccess();
+        if (onLoginSuccess) onLoginSuccess(response.data.user);
       }
     } catch (error) {
       setError(

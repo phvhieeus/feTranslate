@@ -12,12 +12,12 @@ import { LoginPrompt } from "./components/LoginPrompt";
 import { TranslationHistory } from "./components/TranslationHistory";
 import { RecentTranslations } from "./components/RecentTranslations";
 import { saveTranslation } from "./services/translationHistory";
+import UserProfileForm from "./components/UserProfileForm";
 import debounce from "lodash.debounce";
 import axios from "axios";
 import "./App.css"; // Import CSS
 
 // Đặt URL cơ sở cho tất cả các API requests
-// Thay đổi URL này theo URL backend của bạn
 axios.defaults.baseURL = "http://localhost:8080";
 
 // Thêm interceptor để đính kèm token xác thực với mỗi request
@@ -49,6 +49,12 @@ function App() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [attemptedTab, setAttemptedTab] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showProfileForm, setShowProfileForm] = useState(false);
+
+  // Thêm hàm xử lý cập nhật profile
+  const handleUpdateProfile = (updatedUser) => {
+    setUser(updatedUser);
+  };
 
   // Thêm state cho kiểm tra lỗi
   const [grammarErrors, setGrammarErrors] = useState({
@@ -62,7 +68,7 @@ function App() {
   const [partsOfSpeech, setPartsOfSpeech] = useState([]);
   // State cho phonetics
   const [phonetics, setPhonetics] = useState([]);
-  
+
   // State cho lịch sử dịch
   const [showHistory, setShowHistory] = useState(false);
   const [recentTranslation, setRecentTranslation] = useState(null);
@@ -458,8 +464,8 @@ function App() {
         <div className="header-left">
           <button className="menu-button">☰</button>
           <div className="logo">
-            <span className="google-logo">Google</span>
-            <span className="translate-text">Translate</span>
+            <span className="google-logo">Translate</span>
+            <span className="translate-text">Pro</span>
           </div>
         </div>
         <div className="header-right">
@@ -482,6 +488,13 @@ function App() {
                     <p className="user-email">{user?.email}</p>
                   </div>
                   <div className="dropdown-divider"></div>
+                  {/* Thêm nút Update Profile */}
+                  <button
+                    className="dropdown-item"
+                    onClick={() => setShowProfileForm(true)}
+                  >
+                    Update Profile
+                  </button>
                   <button className="dropdown-item" onClick={handleLogout}>
                     Log out
                   </button>
@@ -495,6 +508,14 @@ function App() {
           )}
         </div>
       </header>
+
+      {showProfileForm && (
+        <UserProfileForm
+          user={user}
+          onClose={() => setShowProfileForm(false)}
+          onUpdateSuccess={handleUpdateProfile}
+        />
+      )}
 
       {!showAuthForm && (
         <>
@@ -545,7 +566,7 @@ function App() {
                     setShowErrorDetails(!showErrorDetails)
                   }
                 />
-                
+
                 {/* Thêm component RecentTranslations */}
                 <RecentTranslations
                   recentTranslation={recentTranslation}
@@ -598,7 +619,7 @@ function App() {
       )}
 
       {/* Thêm component TranslationHistory */}
-      <TranslationHistory 
+      <TranslationHistory
         isOpen={showHistory}
         onClose={() => setShowHistory(false)}
       />
