@@ -9,6 +9,9 @@ import { checkGrammarWithGemini } from "./services/grammarChecker";
 import { ErrorDetails } from "./components/ErrorDetails";
 import AuthForm from "./components/AuthForm";
 import { LoginPrompt } from "./components/LoginPrompt";
+import { TranslationHistory } from "./components/TranslationHistory";
+import { RecentTranslations } from "./components/RecentTranslations";
+import { saveTranslation } from "./services/translationHistory";
 import debounce from "lodash.debounce";
 import axios from "axios";
 import "./App.css"; // Import CSS
@@ -59,6 +62,11 @@ function App() {
   const [partsOfSpeech, setPartsOfSpeech] = useState([]);
   // State cho phonetics
   const [phonetics, setPhonetics] = useState([]);
+  
+  // State cho lịch sử dịch
+  const [showHistory, setShowHistory] = useState(false);
+  const [recentTranslation, setRecentTranslation] = useState(null);
+  const [savedTranslation, setSavedTranslation] = useState(null);
 
   // Kiểm tra đăng nhập khi ứng dụng khởi động
   useEffect(() => {
@@ -74,6 +82,21 @@ function App() {
       }
     }
   }, []);
+
+  // Hàm lưu lịch sử dịch
+  const saveTranslationToHistory = () => {
+    if (text && translatedText) {
+      const saved = saveTranslation(
+        text,
+        translatedText,
+        selectedSourceLang,
+        selectedTargetLang
+      );
+      if (saved) {
+        setRecentTranslation(saved);
+      }
+    }
+  };
 
   // Cải tiến các hàm sửa lỗi để xử lý dấu câu tốt hơn
   const fixAllErrors = () => {
@@ -302,6 +325,13 @@ function App() {
     };
   }, [text, selectedSourceLang, selectedTargetLang, autoTranslate]);
 
+  // Effect để lưu lịch sử dịch khi có bản dịch mới
+  useEffect(() => {
+    if (translatedText && text) {
+      saveTranslationToHistory();
+    }
+  }, [translatedText]);
+
   const handleTextChange = (e) => {
     const newText = e.target.value;
     setText(newText);
@@ -515,6 +545,13 @@ function App() {
                     setShowErrorDetails(!showErrorDetails)
                   }
                 />
+                
+                {/* Thêm component RecentTranslations */}
+                <RecentTranslations
+                  recentTranslation={recentTranslation}
+                  savedTranslation={savedTranslation}
+                  onViewHistory={() => setShowHistory(true)}
+                />
               </>
             )}
             {activeTab === "document" && isLoggedIn && <DocumentTranslation />}
@@ -559,6 +596,12 @@ function App() {
           onLogin={handleLoginFromPrompt}
         />
       )}
+
+      {/* Thêm component TranslationHistory */}
+      <TranslationHistory 
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
     </div>
   );
 }
