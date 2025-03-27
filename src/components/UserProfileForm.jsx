@@ -97,20 +97,6 @@ const UserProfileForm = ({ user, onClose, onUpdateSuccess }) => {
 
           <div className="form-group">
             <div className="input-group">
-              <i className="bx bxs-envelope"></i>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={user?.email || ""}
-                readOnly
-                className="readonly-input"
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <div className="input-group">
               <i className="bx bxs-phone"></i>
               <input
                 type="tel"
@@ -146,61 +132,6 @@ const UserProfileForm = ({ user, onClose, onUpdateSuccess }) => {
                 onChange={handleChange}
               />
             </div>
-          </div>
-
-          <div className="password-section">
-            <button
-              type="button"
-              className="toggle-password-btn"
-              onClick={() => setShowPasswordFields(!showPasswordFields)}
-            >
-              {showPasswordFields
-                ? "Cancel Password Change"
-                : "Change Password"}
-            </button>
-
-            {showPasswordFields && (
-              <>
-                <div className="form-group">
-                  <div className="input-group">
-                    <i className="bx bxs-lock"></i>
-                    <input
-                      type="password"
-                      name="currentPassword"
-                      placeholder="Current Password"
-                      value={userData.currentPassword}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <div className="input-group">
-                    <i className="bx bxs-lock-alt"></i>
-                    <input
-                      type="password"
-                      name="newPassword"
-                      placeholder="New Password"
-                      value={userData.newPassword}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <div className="input-group">
-                    <i className="bx bxs-lock-alt"></i>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      placeholder="Confirm New Password"
-                      value={userData.confirmPassword}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
           </div>
 
           <div className="form-actions">
