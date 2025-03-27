@@ -12,9 +12,6 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
     name: "",
     email: "",
     password: "",
-    phone: "",
-    age: 0,
-    address: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,24 +74,10 @@ const AuthForm = ({ onLoginSuccess, onClose }) => {
     setError("");
 
     try {
-      // Validate phone number
-      if (!/^\d{10}$/.test(registerData.phone)) {
-        throw new Error("The phone number must have 10 digits.");
-      }
-
-      // Validate age
-      const age = parseInt(registerData.age);
-      if (isNaN(age) || age <= 0 || age > 122) {
-        throw new Error("Age must be a positive number and not exceed 122.");
-      }
-
       const response = await axios.post("/auth/register", {
         name: registerData.name,
         email: registerData.email,
         password: registerData.password,
-        phone: registerData.phone,
-        age: age,
-        address: registerData.address || "",
       });
 
       if (response.data) {
