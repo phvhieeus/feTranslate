@@ -24,24 +24,29 @@ export function LanguageControls({
 
   const supportedLanguages = defaultSupportedLanguages;
 
+  // Xử lý chọn ngôn ngữ nguồn
   const handleSourceLanguageSelect = (lang) => {
     setSelectedSourceLang(lang);
     setShowSourceOptions(false);
+
+    // Chọn ngẫu nhiên một ngôn ngữ đích khác với nguồn
+    const availableTargetLanguages = supportedLanguages.filter(l => l.value !== lang);
+    if (availableTargetLanguages.length > 0) {
+      const randomLang = availableTargetLanguages[Math.floor(Math.random() * availableTargetLanguages.length)];
+      setSelectedTargetLang(randomLang.value);
+    }
   };
 
+  // Xử lý chọn ngôn ngữ đích
   const handleTargetLanguageSelect = (lang) => {
     setSelectedTargetLang(lang);
     setShowTargetOptions(false);
   };
 
-  // Hàm lấy danh sách ngôn ngữ đích (loại bỏ ngôn ngữ nguồn)
-  const getTargetLanguages = () => {
-    return supportedLanguages.filter(lang => lang.value !== selectedSourceLang);
-  };
-
   return (
     <div className="language-container">
       <div className="language-selection-area">
+        {/* Chọn ngôn ngữ nguồn */}
         <div className="language-section">
           <div
             className="selected-language"
@@ -56,9 +61,7 @@ export function LanguageControls({
                 {supportedLanguages.map((lang) => (
                   <div
                     key={lang.value}
-                    className={`language-option ${
-                      selectedSourceLang === lang.value ? "active" : ""
-                    }`}
+                    className={`language-option ${selectedSourceLang === lang.value ? "active" : ""}`}
                     onClick={() => handleSourceLanguageSelect(lang.value)}
                   >
                     {lang.label}
@@ -69,10 +72,12 @@ export function LanguageControls({
           )}
         </div>
 
+        {/* Nút đổi chỗ */}
         <button className="swap-button" onClick={swapLanguages}>
           <span className="swap-icon">⇄</span>
         </button>
 
+        {/* Chọn ngôn ngữ đích */}
         <div className="language-section">
           <div
             className="selected-language"
@@ -84,17 +89,17 @@ export function LanguageControls({
           {showTargetOptions && (
             <div className="language-options">
               <div className="language-options-grid">
-                {getTargetLanguages().map((lang) => (
-                  <div
-                    key={lang.value}
-                    className={`language-option ${
-                      selectedTargetLang === lang.value ? "active" : ""
-                    }`}
-                    onClick={() => handleTargetLanguageSelect(lang.value)}
-                  >
-                    {lang.label}
-                  </div>
-                ))}
+                {supportedLanguages
+                  .filter(lang => lang.value !== selectedSourceLang) // Không cho chọn trùng với ngôn ngữ nguồn
+                  .map((lang) => (
+                    <div
+                      key={lang.value}
+                      className={`language-option ${selectedTargetLang === lang.value ? "active" : ""}`}
+                      onClick={() => handleTargetLanguageSelect(lang.value)}
+                    >
+                      {lang.label}
+                    </div>
+                  ))}
               </div>
             </div>
           )}
