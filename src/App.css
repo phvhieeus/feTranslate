@@ -2802,3 +2802,252 @@ body {
   border-color: #dadce0 !important;
   box-shadow: none !important;
 }
+/* === Idiom Translation Specific Styles === */
+/* Thêm vào cuối file App.css */
+
+/* Container chính cho tab thành ngữ */
+.idiom-translation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Khoảng cách giữa LanguageControls và text areas */
+}
+
+/* Container cho 2 ô input/output - Giống text-areas-container */
+.idiom-text-areas {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+}
+
+/* Sử dụng lại .text-area-wrapper nhưng có thể thêm class riêng nếu cần tùy chỉnh sâu hơn */
+/* Input area cho thành ngữ */
+.idiom-translation-container .text-area-wrapper .idiom-input {
+  /* Kế thừa các style của .source-text nếu có thể */
+  width: 100%;
+  height: calc(100% - 40px); /* Giống .source-text */
+  border: none;
+  padding: 15px;
+  font-size: 16px; /* Giống .source-text */
+  resize: none;
+  outline: none;
+  background-color: #ffffff; /* Nền trắng giống source */
+  color: #000;
+}
+
+/* Output area cho thành ngữ */
+.idiom-translation-container .idiom-output-wrapper {
+  /* Kế thừa style cơ bản của .text-area-wrapper */
+  background-color: #f5f5f5; /* Nền giống target text */
+  display: flex; /* Cần flex để sắp xếp header, content, controls */
+  flex-direction: column;
+}
+
+/* Header của ô kết quả - Giống .target-header */
+.idiom-translation-container .idiom-output-wrapper .target-header {
+  padding: 10px 15px;
+  color: #5f6368;
+  font-size: 14px;
+  border-bottom: 1px solid #eee; /* Thêm border giống text controls */
+  background-color: #f5f5f5; /* Đảm bảo nền giống output */
+}
+
+/* Nội dung kết quả trong ô output */
+.idiom-translation-container .idiom-result-content {
+  flex-grow: 1; /* Chiếm không gian còn lại */
+  padding: 15px; /* Padding giống textarea */
+  overflow-y: auto; /* Scroll nếu nội dung dài */
+  font-size: 16px; /* Cỡ chữ giống textarea */
+  line-height: 1.6;
+  color: #333; /* Màu chữ cho kết quả */
+}
+
+/* Styling cho câu tương đương và giải thích */
+.idiom-equivalent,
+.idiom-explanation {
+  margin-bottom: 15px; /* Khoảng cách giữa các phần */
+  padding-bottom: 10px; /* Khoảng cách dưới */
+  border-bottom: 1px dashed #ddd; /* Phân cách nhẹ */
+}
+.idiom-equivalent:last-child,
+.idiom-explanation:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none; /* Bỏ border cho phần tử cuối */
+}
+
+
+.idiom-equivalent strong,
+.idiom-explanation strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #1a73e8; /* Màu nhấn */
+  font-weight: 600;
+  font-size: 14px; /* Nhỏ hơn một chút */
+}
+
+.idiom-equivalent p,
+.idiom-explanation p {
+  margin: 0;
+}
+
+/* Placeholder và thông báo lỗi/không kết quả */
+.idiom-no-result,
+.idiom-placeholder {
+    color: #5f6368; /* Màu giống char-count */
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    flex-grow: 1; /* Để căn giữa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Loading spinner (giữ nguyên nếu bạn dùng) */
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1a73e8;
+  border-radius: 50%;
+  width: 24px; /* Nhỏ hơn */
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Đảm bảo text-controls trong idiom container giống với text controls gốc */
+.idiom-translation-container .text-controls {
+  /* Kế thừa style từ .text-controls gốc */
+  /* Nếu cần ghi đè, thêm ở đây */
+  background-color: #f5f5f5; /* Nền giống output */
+}
+
+/* Responsive: Xếp chồng trên màn hình nhỏ */
+@media (max-width: 768px) {
+  .idiom-text-areas {
+    flex-direction: column;
+    height: auto; /* Reset height */
+  }
+  .idiom-translation-container .text-area-wrapper {
+     margin: 10px 0; /* Khoảng cách khi xếp chồng */
+     min-height: 150px; /* Chiều cao tối thiểu khi xếp chồng */
+  }
+  .idiom-translation-container .idiom-input,
+  .idiom-translation-container .idiom-result-content {
+     /* Có thể cần điều chỉnh height/min-height ở đây nếu cần */
+  }
+}
+/* === Idiom Translation Specific Styles - Overflow Fix === */
+/* Thêm/Cập nhật vào cuối file App.css */
+
+/* Output area cho thành ngữ */
+.idiom-translation-container .idiom-output-wrapper {
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Đảm bảo wrapper có thể co giãn */
+  min-height: 0; /* Quan trọng: Cho phép wrapper co lại nếu cần */
+  /* Kế thừa border, border-radius từ .text-area-wrapper */
+}
+
+/* Header của ô kết quả */
+.idiom-translation-container .idiom-output-wrapper .target-header {
+  padding: 10px 15px;
+  color: #5f6368;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  background-color: #f5f5f5;
+  flex-shrink: 0; /* Không cho header co lại */
+}
+
+/* Nội dung kết quả trong ô output - Sửa lỗi tràn */
+.idiom-translation-container .idiom-result-content {
+  flex-grow: 1; /* Cho phép chiếm không gian dọc còn lại */
+  padding: 15px;
+  overflow-y: auto; /* *** QUAN TRỌNG: Bật thanh cuộn dọc khi cần *** */
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  min-height: 0; /* Cho phép co lại trước khi tràn */
+  /* Xóa justify-content nếu có, để nội dung bắt đầu từ trên cùng */
+  justify-content: flex-start;
+}
+
+/* Styling cho câu tương đương và giải thích (Giữ nguyên hoặc tùy chỉnh) */
+.idiom-equivalent,
+.idiom-explanation {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #ddd;
+}
+.idiom-equivalent:last-child,
+.idiom-explanation:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.idiom-equivalent strong,
+.idiom-explanation strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #1a73e8;
+  font-weight: 600;
+  font-size: 14px;
+}
+.idiom-equivalent p,
+.idiom-explanation p {
+  margin: 0;
+}
+
+/* Placeholder và thông báo lỗi/không kết quả (Căn giữa) */
+.idiom-no-result,
+.idiom-placeholder {
+    color: #5f6368;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    flex-grow: 1; /* Vẫn cho phép chiếm không gian để căn giữa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Spinner (Giữ nguyên) */
+.spinner {
+  /* ... */
+}
+@keyframes spin {
+  /* ... */
+}
+
+/* Controls ở dưới cùng */
+.idiom-translation-container .text-controls {
+  background-color: #f5f5f5;
+  flex-shrink: 0; /* Không cho controls co lại */
+  border-top: 1px solid #eee; /* Đảm bảo có border top */
+  /* Ghi đè position nếu nó là absolute từ style chung */
+  position: relative;
+  bottom: auto;
+  width: 100%;
+  padding: 5px 15px; /* Đảm bảo padding */
+  display: flex; /* Đảm bảo flex */
+  justify-content: space-between; /* Đảm bảo căn chỉnh */
+  align-items: center; /* Đảm bảo căn chỉnh */
+}
+
+/* Đảm bảo .text-area-wrapper dùng flex column */
+.text-area-wrapper {
+  /* ... các style khác ... */
+  display: flex;
+  flex-direction: column;
+  /* position: relative; /* Bỏ hoặc giữ tùy thuộc vào style gốc của .text-controls */
+}
+
+/* Responsive (Giữ nguyên) */
+@media (max-width: 768px) {
+ /* ... */
+}

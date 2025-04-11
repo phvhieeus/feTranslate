@@ -5,12 +5,14 @@ export const TranslationTabs = ({
   activeTab,
   setActiveTab,
   isLoggedIn,
-  onLoginClick,
+  onLoginClick, // Đảm bảo prop này được nhận
 }) => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [attemptedTab, setAttemptedTab] = useState(null);
 
   const handleTabClick = (tab) => {
+    // Tab "text" luôn có thể truy cập
+    // Các tab khác yêu cầu đăng nhập
     if (tab === "text" || isLoggedIn) {
       setActiveTab(tab);
     } else {
@@ -20,14 +22,7 @@ export const TranslationTabs = ({
     }
   };
 
-  const handleLoginSuccess = () => {
-    setShowLoginPrompt(false);
-    // Nếu đăng nhập thành công, chuyển đến tab người dùng muốn truy cập
-    if (attemptedTab) {
-      setActiveTab(attemptedTab);
-      setAttemptedTab(null);
-    }
-  };
+  // Không cần hàm handleLoginSuccess ở đây nữa vì logic chuyển tab đã nằm trong App.jsx
 
   return (
     <>
@@ -38,6 +33,15 @@ export const TranslationTabs = ({
         >
           <span className="tab-icon">📝</span>
           Text
+        </button>
+        {/* Thêm Tab Thành ngữ mới */}
+        <button
+          className={`tab ${activeTab === "idiom" ? "active" : ""}`}
+          onClick={() => handleTabClick("idiom")}
+        >
+          <span className="tab-icon">💡</span>
+          Thành ngữ
+          {!isLoggedIn && <span className="lock-icon">🔒</span>}
         </button>
         <button
           className={`tab ${activeTab === "image" ? "active" : ""}`}
@@ -62,7 +66,7 @@ export const TranslationTabs = ({
           onClose={() => setShowLoginPrompt(false)}
           onLogin={() => {
             setShowLoginPrompt(false);
-            onLoginClick();
+            onLoginClick(); // Gọi hàm được truyền từ App.jsx để mở form đăng nhập/đăng ký
           }}
         />
       )}
