@@ -794,6 +794,13 @@ body {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.history-item:hover {
+  background-color: #f0f0f0;
 }
 
 .history-icon {
@@ -806,6 +813,7 @@ body {
   justify-content: center;
   margin-bottom: 10px;
   font-size: 20px;
+  transition: background-color 0.2s ease;
 }
 
 .history-text {
@@ -2875,7 +2883,6 @@ body {
   border-bottom: none; /* Bỏ border cho phần tử cuối */
 }
 
-
 .idiom-equivalent strong,
 .idiom-explanation strong {
   display: block;
@@ -2893,14 +2900,14 @@ body {
 /* Placeholder và thông báo lỗi/không kết quả */
 .idiom-no-result,
 .idiom-placeholder {
-    color: #5f6368; /* Màu giống char-count */
-    font-style: italic;
-    text-align: center;
-    padding: 20px;
-    flex-grow: 1; /* Để căn giữa */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  color: #5f6368; /* Màu giống char-count */
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  flex-grow: 1; /* Để căn giữa */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Loading spinner (giữ nguyên nếu bạn dùng) */
@@ -2915,8 +2922,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Đảm bảo text-controls trong idiom container giống với text controls gốc */
@@ -2933,12 +2944,12 @@ body {
     height: auto; /* Reset height */
   }
   .idiom-translation-container .text-area-wrapper {
-     margin: 10px 0; /* Khoảng cách khi xếp chồng */
-     min-height: 150px; /* Chiều cao tối thiểu khi xếp chồng */
+    margin: 10px 0; /* Khoảng cách khi xếp chồng */
+    min-height: 150px; /* Chiều cao tối thiểu khi xếp chồng */
   }
   .idiom-translation-container .idiom-input,
   .idiom-translation-container .idiom-result-content {
-     /* Có thể cần điều chỉnh height/min-height ở đây nếu cần */
+    /* Có thể cần điều chỉnh height/min-height ở đây nếu cần */
   }
 }
 /* === Idiom Translation Specific Styles - Overflow Fix === */
@@ -3006,14 +3017,14 @@ body {
 /* Placeholder và thông báo lỗi/không kết quả (Căn giữa) */
 .idiom-no-result,
 .idiom-placeholder {
-    color: #5f6368;
-    font-style: italic;
-    text-align: center;
-    padding: 20px;
-    flex-grow: 1; /* Vẫn cho phép chiếm không gian để căn giữa */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  color: #5f6368;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  flex-grow: 1; /* Vẫn cho phép chiếm không gian để căn giữa */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Spinner (Giữ nguyên) */
@@ -3049,5 +3060,5 @@ body {
 
 /* Responsive (Giữ nguyên) */
 @media (max-width: 768px) {
- /* ... */
+  /* ... */
 }

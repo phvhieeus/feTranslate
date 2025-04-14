@@ -40,7 +40,7 @@ export const TranslationTabs = ({
           onClick={() => handleTabClick("idiom")}
         >
           <span className="tab-icon">💡</span>
-          Thành ngữ
+          Idiom
           {!isLoggedIn && <span className="lock-icon">🔒</span>}
         </button>
         <button
